@@ -1,0 +1,71 @@
+name: Build & Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/avir-trekkers
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.api
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/api:latest,${{ env.IMAGE_PREFIX }}/api:${{ github.sha }}
+
+      - name: Build & push User Site image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.user
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/user:latest,${{ env.IMAGE_PREFIX }}/user:${{ github.sha }}
+
+      - name: Build & push Admin Portal image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.admin
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/admin:latest,${{ env.IMAGE_PREFIX }}/admin:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/avir-trekkers
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f
+            echo "Deployed at $(date)"

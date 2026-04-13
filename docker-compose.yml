@@ -1,0 +1,135 @@
+version: "3.8"
+
+services:
+  # ============================================
+  # Express API Server
+  # ============================================
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "4001:4001"
+    env_file: .env.production
+    depends_on:
+      - minio
+    restart: unless-stopped
+    networks:
+      - avir-network
+
+  # ============================================
+  # User Site (React - Vite)
+  # ============================================
+  user-site:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.user
+    restart: unless-stopped
+    networks:
+      - avir-network
+
+  # ============================================
+  # Admin Portal (React - Vite)
+  # ============================================
+  admin-portal:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.admin
+    restart: unless-stopped
+    networks:
+      - avir-network
+
+  # ============================================
+  # MinIO (S3-compatible file storage)
+  # ============================================
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-avir-minio-key}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-avir-minio-secret-change-me}
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - avir-network
+
+  # ============================================
+  # Nginx (Reverse Proxy + SSL)
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - certs:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - api
+      - user-site
+      - admin-portal
+    restart: unless-stopped
+    networks:
+      - avir-network
+
+  # ============================================
+  # Umami (Self-hosted analytics)
+  # ============================================
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    environment:
+      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASS:-umami_pass}@umami-db:5432/umami
+      DISABLE_TELEMETRY: 1
+    ports:
+      - "3001:3000"
+    depends_on:
+      - umami-db
+    restart: unless-stopped
+    networks:
+      - avir-network
+
+  umami-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASS:-umami_pass}
+    volumes:
+      - umami-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - avir-network
+
+  # ============================================
+  # Uptime Kuma (Monitoring)
+  # ============================================
+  uptime-kuma:
+    image: louislam/uptime-kuma
+    ports:
+      - "3002:3001"
+    volumes:
+      - kuma-data:/app/data
+    restart: unless-stopped
+    networks:
+      - avir-network
+
+volumes:
+  minio-data:
+  certs:
+  certbot-www:
+  umami-data:
+  kuma-data:
+
+networks:
+  avir-network:
+    driver: bridge

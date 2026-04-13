@@ -1,0 +1,1067 @@
+{
+  "info": {
+    "name": "Avirr Trekkers API Collection",
+    "description": "Complete API collection for Avirr Trekkers - Adventure Trekking Platform",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "trekId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the server is running"
+      }
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "User Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1234567890\",\n  \"age\": 25,\n  \"emergencyContact\": \"+1234567891\",\n  \"medicalConditions\": \"None\",\n  \"previousExperience\": \"Beginner\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registration",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registration"]
+            },
+            "description": "Register a new user"
+          }
+        },
+        {
+          "name": "User Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('authToken', response.token);",
+                  "        pm.collectionVariables.set('userId', response.user._id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login user and get authentication token"
+          }
+        },
+        {
+          "name": "Admin Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@avirrtrekkers.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registration",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registration"]
+            },
+            "description": "Register a new admin user"
+          }
+        },
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('authToken', response.token);",
+                  "        pm.collectionVariables.set('userId', response.user._id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@avirrtrekkers.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login admin and get authentication token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Application Forms",
+      "item": [
+        {
+          "name": "Get Home",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", ""]
+            },
+            "description": "Get home page data"
+          }
+        },
+        {
+          "name": "Create Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+1234567890\",\n  \"age\": 25,\n  \"emergencyContact\": \"+1234567891\",\n  \"medicalConditions\": \"None\",\n  \"previousExperience\": \"Beginner\",\n  \"trekId\": \"{{trekId}}\",\n  \"message\": \"I would like to join this trek\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/application",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "application"]
+            },
+            "description": "Submit a trek application"
+          }
+        },
+        {
+          "name": "Get Application",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/getApplication",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "getApplication"]
+            },
+            "description": "Get application details"
+          }
+        },
+        {
+          "name": "Update Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"{{enrollmentId}}\",\n  \"status\": \"approved\",\n  \"notes\": \"Application approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/updateApplication",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "updateApplication"]
+            },
+            "description": "Update application status"
+          }
+        },
+        {
+          "name": "Delete Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"{{enrollmentId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/deleteApplication",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "deleteApplication"]
+            },
+            "description": "Delete an application"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Treks",
+      "item": [
+        {
+          "name": "Get All Treks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/treks?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all treks with pagination"
+          }
+        },
+        {
+          "name": "Get Featured Treks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/treks/featured",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks", "featured"]
+            },
+            "description": "Get featured treks"
+          }
+        },
+        {
+          "name": "Get Trek by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data._id) {",
+                  "        pm.collectionVariables.set('trekId', response.data._id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/treks/{{trekId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks", "{{trekId}}"]
+            },
+            "description": "Get specific trek by ID"
+          }
+        },
+        {
+          "name": "Get Treks by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/treks/category/himalayan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks", "category", "himalayan"]
+            },
+            "description": "Get treks by category"
+          }
+        },
+        {
+          "name": "Get Treks by Category Group",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/treks/category-group",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks", "category-group"]
+            },
+            "description": "Get treks grouped by category"
+          }
+        },
+        {
+          "name": "Create Trek (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Himalayan Base Camp Trek\",\n  \"description\": \"An amazing trek to the base camp of Mount Everest\",\n  \"location\": \"Nepal\",\n  \"duration\": 14,\n  \"difficulty\": \"Hard\",\n  \"maxParticipants\": 20,\n  \"price\": 1500,\n  \"category\": \"himalayan\",\n  \"startDate\": \"2024-06-01\",\n  \"endDate\": \"2024-06-14\",\n  \"highlights\": [\"Mountain views\", \"Cultural experience\", \"Adventure\"],\n  \"included\": [\"Guide\", \"Accommodation\", \"Meals\"],\n  \"notIncluded\": [\"Personal gear\", \"Insurance\"],\n  \"requirements\": [\"Good fitness level\", \"Medical certificate\"],\n  \"itinerary\": [\n    {\n      \"day\": 1,\n      \"title\": \"Arrival in Kathmandu\",\n      \"description\": \"Arrive and prepare for trek\"\n    }\n  ],\n  \"images\": [\"https://example.com/image1.jpg\"],\n  \"isActive\": true,\n  \"isFeatured\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks"]
+            },
+            "description": "Create a new trek (Admin only)"
+          }
+        },
+        {
+          "name": "Update Trek (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Himalayan Base Camp Trek\",\n  \"description\": \"Updated description\",\n  \"price\": 1600,\n  \"maxParticipants\": 25\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treks/{{trekId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks", "{{trekId}}"]
+            },
+            "description": "Update a trek (Admin only)"
+          }
+        },
+        {
+          "name": "Delete Trek (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/treks/{{trekId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks", "{{trekId}}"]
+            },
+            "description": "Delete a trek (Admin only)"
+          }
+        },
+        {
+          "name": "Toggle Trek Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treks/{{trekId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks", "{{trekId}}", "status"]
+            },
+            "description": "Toggle trek active status (Admin only)"
+          }
+        },
+        {
+          "name": "Get Trek Stats (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/treks/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treks", "admin", "stats"]
+            },
+            "description": "Get trek statistics (Admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"]
+            },
+            "description": "Get all trek categories"
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data._id) {",
+                  "        pm.collectionVariables.set('categoryId', response.data._id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "{{categoryId}}"]
+            },
+            "description": "Get specific category by ID"
+          }
+        },
+        {
+          "name": "Create Category (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Desert Treks\",\n  \"description\": \"Trekking adventures in desert regions\",\n  \"icon\": \"🏜️\",\n  \"color\": \"#f59e0b\",\n  \"isActive\": true,\n  \"order\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"]
+            },
+            "description": "Create a new category (Admin only)"
+          }
+        },
+        {
+          "name": "Update Category (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Desert Treks\",\n  \"description\": \"Updated description for desert treks\",\n  \"color\": \"#d97706\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "{{categoryId}}"]
+            },
+            "description": "Update a category (Admin only)"
+          }
+        },
+        {
+          "name": "Delete Category (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "{{categoryId}}"]
+            },
+            "description": "Delete a category (Admin only)"
+          }
+        },
+        {
+          "name": "Toggle Category Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "{{categoryId}}", "status"]
+            },
+            "description": "Toggle category active status (Admin only)"
+          }
+        },
+        {
+          "name": "Update Category Order (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categories\": [\n    {\"id\": \"{{categoryId}}\", \"order\": 1},\n    {\"id\": \"anotherCategoryId\", \"order\": 2}\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/order",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "order"]
+            },
+            "description": "Update category order (Admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enrollments",
+      "item": [
+        {
+          "name": "Enroll in Trek",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data._id) {",
+                  "        pm.collectionVariables.set('enrollmentId', response.data._id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trekId\": \"{{trekId}}\",\n  \"participantName\": \"John Doe\",\n  \"participantEmail\": \"john.doe@example.com\",\n  \"participantPhone\": \"+1234567890\",\n  \"participantAge\": 25,\n  \"emergencyContact\": \"+1234567891\",\n  \"medicalConditions\": \"None\",\n  \"previousExperience\": \"Beginner\",\n  \"specialRequests\": \"Vegetarian meals\",\n  \"message\": \"Looking forward to this adventure!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments"]
+            },
+            "description": "Enroll in a trek"
+          }
+        },
+        {
+          "name": "Get My Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/my-enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "my-enrollments"]
+            },
+            "description": "Get user's enrollments"
+          }
+        },
+        {
+          "name": "Get Enrollment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{enrollmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "{{enrollmentId}}"]
+            },
+            "description": "Get specific enrollment by ID"
+          }
+        },
+        {
+          "name": "Cancel Enrollment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{enrollmentId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "{{enrollmentId}}", "cancel"]
+            },
+            "description": "Cancel an enrollment"
+          }
+        },
+        {
+          "name": "Update Enrollment (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\",\n  \"adminNotes\": \"Payment received, enrollment confirmed\",\n  \"specialInstructions\": \"Please arrive 30 minutes early\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{enrollmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "{{enrollmentId}}"]
+            },
+            "description": "Update enrollment status (Admin only)"
+          }
+        },
+        {
+          "name": "Get Trek Enrollments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/trek/{{trekId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "trek", "{{trekId}}"]
+            },
+            "description": "Get all enrollments for a specific trek (Admin only)"
+          }
+        },
+        {
+          "name": "Get Enrollment Stats (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "admin", "stats"]
+            },
+            "description": "Get enrollment statistics (Admin only)"
+          }
+        },
+        {
+          "name": "Get All Enrollments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/admin/all?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enrollments", "admin", "all"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all enrollments with pagination (Admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Get Approved Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/public?limit=10&page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "public"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get approved reviews for public display"
+          }
+        },
+        {
+          "name": "Get Featured Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/public?featured=true&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "public"],
+              "query": [
+                {
+                  "key": "featured",
+                  "value": "true"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Get featured reviews"
+          }
+        },
+        {
+          "name": "Submit Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data._id) {",
+                  "        pm.collectionVariables.set('reviewId', response.data._id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe\",\n  \"customerEmail\": \"john.doe@example.com\",\n  \"customerLocation\": \"New York, USA\",\n  \"trekId\": \"{{trekId}}\",\n  \"trekName\": \"Himalayan Base Camp Trek\",\n  \"rating\": 5,\n  \"reviewText\": \"Amazing experience! The trek was well-organized and the views were breathtaking. Highly recommended for adventure enthusiasts.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "submit"]
+            },
+            "description": "Submit a new review"
+          }
+        },
+        {
+          "name": "Get Review Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "stats"]
+            },
+            "description": "Get review statistics"
+          }
+        },
+        {
+          "name": "Get All Reviews (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/admin?status=pending&limit=10&page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "admin"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get all reviews for admin management"
+          }
+        },
+        {
+          "name": "Update Review Status (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isApproved\": true,\n  \"isFeatured\": true,\n  \"adminNotes\": \"Great review, featuring it on homepage\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/admin/{{reviewId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "admin", "{{reviewId}}", "status"]
+            },
+            "description": "Update review status (Admin only)"
+          }
+        },
+        {
+          "name": "Delete Review (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/admin/{{reviewId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "admin", "{{reviewId}}"]
+            },
+            "description": "Delete a review (Admin only)"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set default values if not already set",
+          "if (!pm.collectionVariables.get('baseUrl')) {",
+          "    pm.collectionVariables.set('baseUrl', 'http://localhost:4000');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "pm.test('Response time is less than 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has success field', function () {",
+          "    const response = pm.response.json();",
+          "    pm.expect(response).to.have.property('success');",
+          "});"
+        ]
+      }
+    }
+  ]
+}
