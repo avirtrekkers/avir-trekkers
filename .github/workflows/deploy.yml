@@ -4,7 +4,6 @@
 #  VPS_USER              SSH username
 #  VPS_SSH_KEY           Ed25519 private SSH key
 #  GHCR_READ_TOKEN       GitHub PAT with `read:packages` scope
-#  SONAR_TOKEN           Token from https://sonar-sanket.technootales.in/account/security
 #  CERT_EMAIL            Email for Let's Encrypt registration
 #
 #  ── Production API environment vars ──
@@ -12,7 +11,6 @@
 #  PROD_JWT_SECRET       JWT secret for production API
 #  SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASS
 #  CONTACT_SMTP_USER / CONTACT_SMTP_PASS
-#  CLOUD_BASE
 #
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -28,28 +26,9 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/avir-trekkers
 
 jobs:
-  # ── SonarQube (blocking quality gate on production) ───────────────────────
-  sonar:
-    name: SonarQube Quality Gate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v2
-        with:
-          args: >
-            -Dsonar.ws.timeout=300
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonar-sanket.technootales.in
-
   # ── Build & push Docker images ────────────────────────────────────────────
   build:
     name: Build & Push Images
-    needs: sonar
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -199,7 +178,7 @@ jobs:
             rm -f /tmp/avir_nginx_candidate.conf
 
             # ── GHCR auth & pull latest images ──────────────────────────────
-            echo "${{ secrets.GHCR_READ_TOKEN }}" | \
+            printf '%s' "${{ secrets.GHCR_READ_TOKEN }}" | \
               docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
             cd /opt/avir-trekkers

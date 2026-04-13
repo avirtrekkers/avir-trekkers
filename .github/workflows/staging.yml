@@ -4,7 +4,6 @@
 #  VPS_USER              SSH username (root or a deploy user)
 #  VPS_SSH_KEY           Ed25519 private key for SSH (add the public key to VPS ~/.ssh/authorized_keys)
 #  GHCR_READ_TOKEN       GitHub PAT with `read:packages` scope — used by VPS to pull images
-#  SONAR_TOKEN           Token from https://sonar-sanket.technootales.in/account/security
 #  CERT_EMAIL            Email for Let's Encrypt registration (e.g. contact@avirtrekkers.com)
 #
 #  ── Staging API environment vars (written to VPS as /opt/avir-staging/api.env) ──
@@ -36,25 +35,6 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/avir-trekkers
 
 jobs:
-  # ── SonarQube (parallel, non-blocking on staging) ─────────────────────────
-  # sonar:
-  #   name: SonarQube Analysis
-  #   runs-on: ubuntu-latest
-  #   continue-on-error: true
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-
-  #     - name: SonarQube Scan
-  #       uses: sonarsource/sonarqube-scan-action@v2
-  #       with:
-  #         args: >
-  #           -Dsonar.ws.timeout=300
-  #       env:
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #         SONAR_HOST_URL: https://sonar-sanket.technootales.in
-
   # ── Build & Deploy ─────────────────────────────────────────────────────────
   build-deploy:
     name: Build & Deploy to Staging
@@ -146,9 +126,6 @@ jobs:
           ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
 
       # ── Write api.env from GitHub Secrets ───────────────────────────────
-      # Single-quoted heredoc: shell does NOT expand vars; GitHub Actions
-      # expands ${{ secrets.* }} before the script is sent, so actual values
-      # land in the file as literals — safe for passwords with special chars.
       - name: Write API env file on VPS
         uses: appleboy/ssh-action@v1
         with:
@@ -174,16 +151,13 @@ jobs:
       # ── Copy deployment files to VPS ─────────────────────────────────────
       - name: Generate & copy compose + nginx config
         run: |
-          # Resolve GITHUB_OWNER placeholder in compose template
           GITHUB_OWNER="${{ github.repository_owner }}" \
             envsubst '${GITHUB_OWNER}' < docker/compose.staging.yml > /tmp/compose.staging.yml
 
-          # docker-compose.yml on VPS
           scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
             /tmp/compose.staging.yml \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/avir-staging/docker-compose.yml
 
-          # nginx.conf — repo is the source of truth for the full VPS nginx config
           scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
             docker/nginx/nginx.conf \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/avir_nginx_candidate.conf
@@ -198,21 +172,7 @@ jobs:
           script: |
             set -e
 
-            # ── 1. SSL: auto-issue cert for admin-staging if not yet present ──
-            ADMIN_CERT=/etc/letsencrypt/live/admin-staging.avirtrekkers.com/fullchain.pem
-            if [ ! -f "$ADMIN_CERT" ]; then
-              echo "⟳ Obtaining SSL cert for admin-staging.avirtrekkers.com ..."
-              # Test nginx config without admin-staging SSL block to allow HTTP-01 challenge
-              # certbot --nginx uses nginx to serve the ACME challenge automatically
-              certbot certonly --nginx \
-                -d admin-staging.avirtrekkers.com \
-                --non-interactive --agree-tos \
-                -m ${{ secrets.CERT_EMAIL }} \
-                --keep-until-expiring
-              echo "✓ Cert obtained"
-            fi
-
-            # ── 2. Validate candidate nginx config ───────────────────────────
+            # ── 1. Validate candidate nginx config ───────────────────────────
             if ! nginx -t -c /tmp/avir_nginx_candidate.conf 2>&1; then
               echo "✗ nginx config test failed — keeping existing config"
               rm -f /tmp/avir_nginx_candidate.conf
@@ -221,18 +181,18 @@ jobs:
             cp /tmp/avir_nginx_candidate.conf /etc/nginx/nginx.conf
             rm -f /tmp/avir_nginx_candidate.conf
 
-            # ── 3. GHCR auth & pull images ───────────────────────────────────
-            echo "${{ secrets.GHCR_READ_TOKEN }}" | \
+            # ── 2. GHCR auth & pull images ───────────────────────────────────
+            printf '%s' "${{ secrets.GHCR_READ_TOKEN }}" | \
               docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
             cd /opt/avir-staging
             docker compose pull
 
-            # ── 4. Restart containers ────────────────────────────────────────
+            # ── 3. Restart containers ────────────────────────────────────────
             docker compose up -d --remove-orphans
             docker image prune -f
 
-            # ── 5. Reload nginx ──────────────────────────────────────────────
+            # ── 4. Reload nginx ──────────────────────────────────────────────
             systemctl reload nginx
 
             echo ""
