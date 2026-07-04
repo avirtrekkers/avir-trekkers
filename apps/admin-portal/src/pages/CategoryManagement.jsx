@@ -156,8 +156,8 @@ export default function CategoryManagement() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={addLoading}
-                className="flex items-center gap-1 px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors disabled:opacity-50"
+                disabled={addLoading || !newName.trim()}
+                className="flex items-center gap-1 px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {addLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Save

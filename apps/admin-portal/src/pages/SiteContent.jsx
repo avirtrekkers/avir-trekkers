@@ -427,8 +427,9 @@ function HeroSlidesTab() {
             </div>
           </div>
           <div className="flex gap-2 pt-1">
-            <button type="submit" disabled={saving || uploading || !form.image}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors disabled:opacity-50">
+            <button type="submit"
+              disabled={saving || uploading || !form.image || !form.headline?.trim() || !form.highlight?.trim() || !form.subtext?.trim()}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saving ? "Saving…" : "Save"}
             </button>
@@ -594,8 +595,9 @@ function TeamTab() {
             </label>
           </div>
           <div className="flex gap-2 pt-1">
-            <button type="submit" disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors disabled:opacity-50">
+            <button type="submit"
+              disabled={saving || !form.name?.trim() || !form.role?.trim() || !form.description?.trim()}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saving ? "Saving…" : "Save"}
             </button>

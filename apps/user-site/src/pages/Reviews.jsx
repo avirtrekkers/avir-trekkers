@@ -165,6 +165,15 @@ export default function Reviews() {
     }
   }
 
+  const reviewEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+  const isReviewValid =
+    form.name.trim() !== "" &&
+    reviewEmailValid &&
+    form.location.trim() !== "" &&
+    form.rating > 0 &&
+    form.trekId !== "" &&
+    form.reviewText.trim().length >= 10;
+
   const avgRating =
     stats?.averageRating ||
     stats?.avgRating ||
@@ -378,8 +387,8 @@ export default function Reviews() {
                   )}
                   <button
                     type="submit"
-                    disabled={submitting}
-                    className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-light disabled:opacity-50 text-white py-3 rounded-xl font-semibold transition-colors"
+                    disabled={submitting || !isReviewValid}
+                    className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-xl font-semibold transition-colors"
                   >
                     {submitting ? (
                       <Loader2 className="h-5 w-5 animate-spin" />

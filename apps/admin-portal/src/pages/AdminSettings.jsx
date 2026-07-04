@@ -234,8 +234,13 @@ export default function AdminSettings() {
 
           <button
             type="submit"
-            disabled={saving || !currentPassword || !newPassword || !confirmPassword}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors disabled:opacity-50"
+            disabled={
+              saving ||
+              !currentPassword ||
+              newPassword.length < 6 ||
+              confirmPassword !== newPassword
+            }
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {saving ? "Updating..." : "Update Password"}

@@ -109,10 +109,11 @@ export default function TrekFormDrawer({ open, onClose, trekId, onSuccess }) {
     handleSubmit,
     control,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(trekSchema),
     defaultValues: DEFAULT_VALUES,
+    mode: "onChange", // validate live so the submit button reflects validity
   });
 
   // Fetch categories when drawer opens
@@ -842,8 +843,9 @@ export default function TrekFormDrawer({ open, onClose, trekId, onSuccess }) {
                       </button>
                       <button
                         type="submit"
-                        disabled={isSubmitting}
-                        className="flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors disabled:opacity-60"
+                        disabled={isSubmitting || !isValid || images.length === 0}
+                        title={images.length === 0 ? "Add at least one image" : !isValid ? "Fill all required fields across every tab" : ""}
+                        className="flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {isSubmitting && (
                           <Loader2 className="w-4 h-4 animate-spin" />

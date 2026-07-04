@@ -73,6 +73,15 @@ export default function Contact() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+  const phoneValid = form.phone === "" || form.phone.length === 10;
+  const isFormValid =
+    form.name.trim() !== "" &&
+    emailValid &&
+    form.subject.trim() !== "" &&
+    form.message.trim() !== "" &&
+    phoneValid;
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitError(null);
@@ -238,8 +247,8 @@ export default function Contact() {
 
               <button
                 type="submit"
-                disabled={submitting}
-                className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-semibold text-sm transition-colors shadow-sm"
+                disabled={submitting || !isFormValid}
+                className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-semibold text-sm transition-colors shadow-sm"
               >
                 {submitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

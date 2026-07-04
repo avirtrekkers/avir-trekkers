@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import { getTrekById, createEnrollment } from "../services/api";
@@ -154,8 +154,8 @@ function ParticipantCard({ index, data, onChange, onRemove, pickupPoints, canRem
                   <p className="text-xs font-bold text-text-light uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5" /> Pickup Point
                   </p>
-                  <select value={data.pickupPoint} onChange={e => set("pickupPoint", e.target.value)} className={selectCls}>
-                    <option value="">Not selected</option>
+                  <select required value={data.pickupPoint} onChange={e => set("pickupPoint", e.target.value)} className={selectCls}>
+                    <option value="">Select pickup point</option>
                     {pickupPoints.map(p => <option key={p}>{p}</option>)}
                   </select>
                 </div>
@@ -235,12 +235,24 @@ export default function Booking() {
   const [error,      setError]      = useState(null);
   const [success,    setSuccess]    = useState(null); // { bookingId, count }
 
+  // Live form validity — drives the disabled state of the submit buttons.
+  // Uses the browser's native constraint validation (required, pattern, etc.)
+  const formRef = useRef(null);
+  const [formValid, setFormValid] = useState(false);
+  const recomputeValidity = () => setFormValid(formRef.current?.checkValidity() ?? false);
+
   useEffect(() => {
     getTrekById(id)
       .then(r => setTrek(r.data?.data || r.data))
       .catch(() => setTrekError("Trek not found."))
       .finally(() => setTrekLoading(false));
   }, [id]);
+
+  // Re-check validity whenever the participant/primary state changes
+  // (covers add/remove participant and programmatic updates).
+  useEffect(() => {
+    recomputeValidity();
+  }, [participants, primary, trek]);
 
   /* participant helpers */
   const addParticipant = () => {
@@ -402,7 +414,7 @@ export default function Booking() {
               <p className="text-text-light text-sm">{trek.title}</p>
             </div>
 
-            <form id="enrollment-form" onSubmit={handleSubmit} className="space-y-6">
+            <form id="enrollment-form" ref={formRef} onChange={recomputeValidity} onSubmit={handleSubmit} className="space-y-6">
 
               {/* error banner */}
               <AnimatePresence>
@@ -487,11 +499,14 @@ export default function Booking() {
                   <span className="text-sm text-text-light">{participants.length} × ₹{trek.price?.toLocaleString("en-IN") || 0}</span>
                   <span className="text-lg font-bold text-text">₹{totalPrice.toLocaleString("en-IN")}</span>
                 </div>
-                <button type="submit" disabled={submitting}
-                  className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary-light disabled:opacity-50 text-white py-3 rounded-xl font-bold transition-colors">
+                <button type="submit" disabled={submitting || !formValid}
+                  className="w-full flex items-center justify-center gap-2 bg-secondary hover:bg-secondary-light disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 rounded-xl font-bold transition-colors">
                   {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <IndianRupee className="w-5 h-5" />}
                   {submitting ? "Enrolling…" : "Confirm Enrollment"}
                 </button>
+                {!formValid && (
+                  <p className="text-xs text-text-light text-center mt-2">Fill all required fields to enable enrollment.</p>
+                )}
               </div>
             </form>
           </div>
@@ -566,8 +581,8 @@ export default function Booking() {
             <button
               type="submit"
               form="enrollment-form"
-              disabled={submitting}
-              className="hidden lg:flex w-full items-center justify-center gap-2 bg-secondary hover:bg-secondary-light disabled:opacity-50 text-white py-3.5 rounded-2xl font-bold transition-colors shadow-sm"
+              disabled={submitting || !formValid}
+              className="hidden lg:flex w-full items-center justify-center gap-2 bg-secondary hover:bg-secondary-light disabled:opacity-50 disabled:cursor-not-allowed text-white py-3.5 rounded-2xl font-bold transition-colors shadow-sm"
             >
               {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <IndianRupee className="w-5 h-5" />}
               {submitting ? "Enrolling…" : "Confirm Enrollment"}
