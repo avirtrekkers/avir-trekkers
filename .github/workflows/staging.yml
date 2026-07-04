@@ -75,14 +75,18 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      # ── Build frontend apps ──────────────────────────────────────────────
+      # ── Build frontend apps (smoke test before Docker builds) ───────────
+      # This is an npm-workspaces monorepo: install once from the root
+      # lockfile. Per-app `npm install` produces a partial tree and breaks
+      # module resolution (e.g. recharts -> react-is).
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
       - name: Build user-site
-        working-directory: apps/user-site
-        run: npm install --legacy-peer-deps && npm run build
+        run: npm run build:user
 
       - name: Build admin-portal
-        working-directory: apps/admin-portal
-        run: npm install --legacy-peer-deps && npm run build
+        run: npm run build:admin
 
       # ── Build & push Docker images ───────────────────────────────────────
       - name: Set up Docker Buildx
