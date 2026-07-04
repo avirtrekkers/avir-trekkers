@@ -53,7 +53,7 @@ function VisualStory({ stats }) {
         {miniStats.map(({ value, label }) => (
           <div key={label} className="bg-white border border-slate-200 rounded-xl p-3 text-center">
             <div className="text-lg font-bold text-slate-800">{value}</div>
-            <div className="text-xs text-slate-400 mt-0.5">{label}</div>
+            <div className="text-xs text-slate-500 mt-0.5">{label}</div>
           </div>
         ))}
       </Motion.div>
@@ -78,7 +78,7 @@ function VisualMission() {
           </div>
           <div>
             <p className="text-slate-800 font-semibold text-sm">{title}</p>
-            <p className="text-slate-400 text-xs mt-1.5 leading-relaxed">{desc}</p>
+            <p className="text-slate-500 text-xs mt-1.5 leading-relaxed">{desc}</p>
           </div>
         </Motion.div>
       ); })}
@@ -103,7 +103,7 @@ function VisualVision({ stats }) {
           </div>
           <span className="text-4xl font-bold text-slate-800 leading-none">{value}</span>
           <span className="text-slate-700 text-sm font-semibold mt-2">{label}</span>
-          <span className="text-slate-400 text-xs mt-1 leading-relaxed">{desc}</span>
+          <span className="text-slate-500 text-xs mt-1 leading-relaxed">{desc}</span>
         </Motion.div>
       ); })}
     </div>
@@ -127,7 +127,7 @@ function VisualValues() {
           </div>
           <div>
             <p className="text-slate-800 font-semibold text-sm">{title}</p>
-            <p className="text-slate-400 text-xs mt-1.5 leading-relaxed">{desc}</p>
+            <p className="text-slate-500 text-xs mt-1.5 leading-relaxed">{desc}</p>
           </div>
         </Motion.div>
       ); })}
@@ -155,10 +155,15 @@ const slideVariants = (dir) => ({
   exit:   { opacity: 0, x: dir * -40, transition: { duration: 0.25, ease: "easeIn" } },
 });
 
+const initials = (name = "") =>
+  name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+
 export default function About() {
   usePageMeta("About Us", "Our story, mission and the team behind Avir Trekkers.");
   const [current, setCurrent] = useState(0);
   const [dir, setDir] = useState(1);
+  const [paused, setPaused] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
   const [stats, setStats] = useState({ treks: 50, trekkers: 500, schools: 20, cycles: 100, drives: 30, lives: 1000, forts: 25, foundedYear: 2020 });
   const [team, setTeam] = useState(FALLBACK_TEAM);
 
@@ -179,18 +184,20 @@ export default function About() {
     fetchData();
   }, []);
 
-  const go = useCallback((next) => {
+  const go = useCallback((next, manual = false) => {
+    if (manual) setAutoPlay(false); // reader is in control now — stop rotating
     setDir(next > current ? 1 : -1);
     setCurrent(next);
   }, [current]);
 
-  const prev = () => go(current === 0 ? SLIDES.length - 1 : current - 1);
-  const next = () => go(current === SLIDES.length - 1 ? 0 : current + 1);
+  const prev = () => go(current === 0 ? SLIDES.length - 1 : current - 1, true);
+  const next = () => go(current === SLIDES.length - 1 ? 0 : current + 1, true);
 
   useEffect(() => {
-    const t = setTimeout(() => go(current === SLIDES.length - 1 ? 0 : current + 1), 5500);
+    if (!autoPlay || paused) return;
+    const t = setTimeout(() => go(current === SLIDES.length - 1 ? 0 : current + 1), 7000);
     return () => clearTimeout(t);
-  }, [current, go]);
+  }, [current, go, autoPlay, paused]);
 
   const slide = SLIDES[current];
   const vars = slideVariants(dir);
@@ -207,7 +214,11 @@ export default function About() {
     <div className="min-h-screen bg-background">
 
       {/* ── ABOVE-THE-FOLD ── */}
-      <div className="min-h-[calc(100vh-64px)] flex flex-col lg:flex-row">
+      <div
+        className="min-h-[calc(100vh-64px)] flex flex-col lg:flex-row"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
 
         {/* LEFT */}
         <div className="lg:w-[44%] bg-gradient-to-br from-[#0B2545] to-[#1D3557] text-white flex flex-col justify-between p-10 lg:p-14 relative overflow-hidden">
@@ -231,16 +242,16 @@ export default function About() {
           </div>
 
           <div className="relative z-10 flex items-center gap-3 mt-8 mb-6">
-            <button onClick={prev} className="w-9 h-9 rounded-full border border-white/20 hover:bg-white/10 flex items-center justify-center transition-colors">
+            <button onClick={prev} aria-label="Previous slide" className="w-9 h-9 rounded-full border border-white/20 hover:bg-white/10 flex items-center justify-center transition-colors">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <div className="flex gap-1.5">
               {SLIDES.map((s, i) => (
-                <button key={s.id} onClick={() => go(i)}
+                <button key={s.id} onClick={() => go(i, true)} aria-label={`Go to ${s.label}`}
                   className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? "w-7 bg-orange-500" : "w-2 bg-white/20 hover:bg-white/35"}`} />
               ))}
             </div>
-            <button onClick={next} className="w-9 h-9 rounded-full border border-white/20 hover:bg-white/10 flex items-center justify-center transition-colors">
+            <button onClick={next} aria-label="Next slide" className="w-9 h-9 rounded-full border border-white/20 hover:bg-white/10 flex items-center justify-center transition-colors">
               <ChevronRight className="w-4 h-4" />
             </button>
             <span className="text-white/25 text-xs tabular-nums ml-1">{current + 1}/{SLIDES.length}</span>
@@ -260,7 +271,7 @@ export default function About() {
         <div className="lg:w-[56%] bg-slate-50 flex flex-col">
           <div className="flex border-b border-slate-200">
             {SLIDES.map((s, i) => (
-              <button key={s.id} onClick={() => go(i)}
+              <button key={s.id} onClick={() => go(i, true)}
                 className={`flex-1 py-4 text-sm font-semibold transition-colors border-b-2 -mb-px ${i === current ? "border-[#1D3557] text-[#1D3557]" : "border-transparent text-slate-400 hover:text-slate-600"}`}>
                 {s.label}
               </button>
@@ -279,7 +290,7 @@ export default function About() {
                 </Motion.div>
               </AnimatePresence>
             </div>
-            <span className="absolute bottom-4 right-6 text-6xl font-black text-slate-200 select-none pointer-events-none uppercase">
+            <span aria-hidden="true" className="absolute bottom-4 right-6 text-6xl font-black text-slate-200 select-none pointer-events-none uppercase">
               {slide.label}
             </span>
           </div>
@@ -287,30 +298,47 @@ export default function About() {
       </div>
 
       {/* ── TEAM ── */}
-      <section className="py-16 px-4 bg-white border-t border-slate-100">
+      <section className="py-16 lg:py-20 px-4 bg-white border-t border-slate-100">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-heading font-bold text-text mb-2">Meet the Team</h2>
-            <p className="text-text-light text-sm">The people behind Avir Trekkers</p>
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-400 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" /> The People
+            </span>
+            <h2 className="text-2xl md:text-3xl font-heading font-bold text-text mb-2">Meet the Team</h2>
+            <p className="text-text-light text-sm max-w-md mx-auto">
+              Guides, organisers and community builders who make every trek safe, memorable and meaningful.
+            </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map((m, i) => (
               <Motion.div key={m._id || i}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="bg-slate-50 rounded-2xl border border-slate-200 p-6 text-center hover:-translate-y-1 transition-transform">
-                <div className="w-14 h-14 rounded-full overflow-hidden mx-auto mb-4">
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.45 }}
+                className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
+                <div className="relative aspect-[4/3] overflow-hidden">
                   {m.photo ? (
-                    <img src={m.photo} alt={m.name} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={m.photo} alt={m.name} loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                      <Users className="w-6 h-6 text-blue-400" />
+                    <div className="w-full h-full bg-gradient-to-br from-[#0B2545] to-[#457B9D] flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full" />
+                      <div className="absolute -bottom-10 -left-6 w-28 h-28 bg-orange-500/15 rounded-full" />
+                      <span className="text-4xl font-black text-white/90 tracking-wide font-heading">
+                        {initials(m.name)}
+                      </span>
                     </div>
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-4 right-4">
+                    <h3 className="font-heading font-bold text-white text-base leading-tight drop-shadow">{m.name}</h3>
+                  </div>
                 </div>
-                <h3 className="font-heading font-semibold text-text mb-0.5">{m.name}</h3>
-                <p className="text-xs font-semibold text-orange-500 mb-2">{m.role}</p>
-                <p className="text-xs text-text-light leading-relaxed">{m.description}</p>
+                <div className="p-5">
+                  <span className="inline-block text-[11px] font-bold uppercase tracking-wide text-orange-600 bg-orange-50 rounded-full px-2.5 py-1 mb-3">
+                    {m.role}
+                  </span>
+                  <p className="text-xs text-slate-500 leading-relaxed">{m.description}</p>
+                </div>
               </Motion.div>
             ))}
           </div>
@@ -318,8 +346,11 @@ export default function About() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-14 px-4 bg-gradient-to-r from-[#0B2545] to-[#1D3557] text-white">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="py-16 px-4 bg-gradient-to-r from-[#0B2545] to-[#1D3557] text-white relative overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-72 h-72 bg-orange-500/10 rounded-full -translate-y-1/2 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-white/5 rounded-full translate-y-1/2 blur-3xl pointer-events-none" />
+        <Mountain aria-hidden="true" className="absolute right-8 bottom-6 w-28 h-28 text-white/[0.04] pointer-events-none" />
+        <div className="max-w-3xl mx-auto text-center relative z-10">
           <h2 className="text-2xl md:text-3xl font-heading font-bold mb-3">Ready to Trek with Us?</h2>
           <p className="text-white/60 mb-7 text-sm leading-relaxed">
             Join our community of adventurers and be part of something meaningful. Every trek is an opportunity to explore, connect, and give back.
