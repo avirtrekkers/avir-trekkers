@@ -36,23 +36,41 @@ env:
 
 jobs:
   # ── SonarQube (parallel, non-blocking on staging) ─────────────────────────
+  # The SonarQube server lives on a private Tailscale network (sanket-server),
+  # so GitHub-hosted runners must join the tailnet first. Configure:
+  #   TS_AUTHKEY       ephemeral Tailscale auth key (Admin console → Keys)
+  #   SONAR_HOST_URL   optional override; defaults to the server's Tailscale IP
+  # Without TS_AUTHKEY the scan is skipped instead of failing.
   sonar:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
     continue-on-error: true
+    env:
+      TS_AUTHKEY: ${{ secrets.TS_AUTHKEY }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Join Tailscale network
+        if: env.TS_AUTHKEY != ''
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+
       - name: SonarQube Scan
+        if: env.TS_AUTHKEY != ''
         uses: sonarsource/sonarqube-scan-action@v2
         with:
           args: >
             -Dsonar.ws.timeout=300
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarr-sanket.technootales.in
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || 'http://100.84.164.77:9000' }}
+
+      - name: SonarQube skipped
+        if: env.TS_AUTHKEY == ''
+        run: echo "::notice::SonarQube scan skipped — TS_AUTHKEY secret not set (Sonar host is reachable only via Tailscale)."
 
   # ── Build & Deploy ─────────────────────────────────────────────────────────
   build-deploy:
