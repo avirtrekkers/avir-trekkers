@@ -215,7 +215,7 @@ export default function About() {
 
       {/* ── ABOVE-THE-FOLD ── */}
       <div
-        className="min-h-[calc(100vh-64px)] flex flex-col lg:flex-row"
+        className="lg:min-h-[620px] lg:max-h-[760px] flex flex-col lg:flex-row"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -225,17 +225,17 @@ export default function About() {
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-56 h-56 bg-orange-500/10 rounded-full translate-y-1/3 -translate-x-1/3 blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 flex-1 flex flex-col justify-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/35 mb-4">{slide.label}</p>
+          <div className="relative z-10 flex-1 flex flex-col justify-center py-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400/80 mb-4">{slide.label}</p>
             <AnimatePresence mode="wait">
               <Motion.h1 key={slide.id + "-h"} variants={vars} initial="enter" animate="center" exit="exit"
-                className="text-3xl lg:text-[2.25rem] font-bold font-heading leading-snug mb-5">
+                className="text-3xl lg:text-4xl xl:text-[2.75rem] font-bold font-heading leading-snug lg:leading-tight mb-5">
                 {slide.heading}
               </Motion.h1>
             </AnimatePresence>
             <AnimatePresence mode="wait">
               <Motion.p key={slide.id + "-p"} variants={vars} initial="enter" animate="center" exit="exit"
-                className="text-white/60 text-sm leading-relaxed max-w-md">
+                className="text-white/70 text-sm lg:text-[15px] leading-relaxed max-w-md">
                 {slide.body}
               </Motion.p>
             </AnimatePresence>
@@ -285,7 +285,8 @@ export default function About() {
             </div>
             <div className="flex-1 flex flex-col justify-center">
               <AnimatePresence mode="wait">
-                <Motion.div key={slide.id + "-v"} variants={vars} initial="enter" animate="center" exit="exit" className="w-full">
+                <Motion.div key={slide.id + "-v"} variants={vars} initial="enter" animate="center" exit="exit"
+                  className="w-full max-w-2xl mx-auto">
                   {renderVisual()}
                 </Motion.div>
               </AnimatePresence>
