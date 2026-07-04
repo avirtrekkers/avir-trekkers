@@ -232,7 +232,7 @@ const enrollInTrek = async (req, res) => {
         // Send confirmation emails (fire-and-forget — don't block response)
         const emailData = {
             primaryContact: primaryContactDoc,
-            trek: { title: trek.title, startDate: trek.startDate, endDate: trek.endDate, location: trek.location, duration: trek.duration, difficulty: trek.difficulty },
+            trek: { title: trek.title, startDate: trek.startDate, endDate: trek.endDate, location: trek.location, duration: trek.duration, difficulty: trek.difficulty, whatsappGroupLink: trek.whatsappGroupLink },
             bookingId: bookingId.toString(),
             participants,
             paymentAmount: trek.price * participants.length,
@@ -249,6 +249,7 @@ const enrollInTrek = async (req, res) => {
             data: {
                 bookingId,
                 count: participants.length,
+                whatsappGroupLink: trek.whatsappGroupLink || "",
                 enrollments: populated
             }
         });

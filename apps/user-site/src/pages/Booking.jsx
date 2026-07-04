@@ -10,10 +10,6 @@ import {
   Users, Heart, Utensils, Droplets, ArrowLeft, Clock,
 } from "lucide-react";
 
-// Trek WhatsApp community — set VITE_WHATSAPP_GROUP_LINK to enable the
-// "Join Group" prompt on the enrollment success screen.
-const WHATSAPP_GROUP_LINK = import.meta.env.VITE_WHATSAPP_GROUP_LINK || "";
-
 /* ─── constants ─── */
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 const FOOD_PREFS   = ["Veg", "Non-veg"];
@@ -286,7 +282,11 @@ export default function Booking() {
       };
       const res = await createEnrollment(payload);
       const data = res.data?.data;
-      setSuccess({ bookingId: String(data?.bookingId || ""), count: data?.count || participants.length });
+      setSuccess({
+        bookingId: String(data?.bookingId || ""),
+        count: data?.count || participants.length,
+        whatsappGroupLink: data?.whatsappGroupLink || trek?.whatsappGroupLink || "",
+      });
     } catch (err) {
       setError(err.response?.data?.error || "Enrollment failed. Please try again.");
     } finally {
@@ -341,7 +341,7 @@ export default function Booking() {
             </div>
           )}
 
-          {WHATSAPP_GROUP_LINK && (
+          {success.whatsappGroupLink && (
             <div className="bg-green-50 border border-green-200 rounded-2xl px-5 py-5 mb-7 text-left">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
@@ -350,9 +350,9 @@ export default function Booking() {
                 <div className="flex-1">
                   <p className="font-heading font-bold text-text text-sm mb-1">Join the trek WhatsApp group</p>
                   <p className="text-text-light text-xs mb-3 leading-relaxed">
-                    Get trek updates, packing lists and coordination details. All enrolled trekkers should join.
+                    Get updates, packing lists and coordination details for {trek.title}. All enrolled trekkers should join. We've also emailed you the link.
                   </p>
-                  <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer"
+                  <a href={success.whatsappGroupLink} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
                     <WhatsappIcon className="w-4 h-4" /> Join Group
                   </a>

@@ -41,6 +41,12 @@ const trekSchema = z.object({
   endDate: z.string().min(1, "Required"),
   registrationDeadline: z.string().min(1, "Required"),
   maxParticipants: z.coerce.number().min(1, "Must be ≥ 1"),
+  whatsappGroupLink: z
+    .string()
+    .trim()
+    .url("Enter a valid URL (https://chat.whatsapp.com/…)")
+    .or(z.literal(""))
+    .optional(),
   status: z.enum(["Upcoming", "Ongoing", "Completed", "Cancelled"]),
   isFeatured: z.boolean(),
   itinerary: z.array(z.any()).min(1, "Add at least one day"),
@@ -68,6 +74,7 @@ const DEFAULT_VALUES = {
   endDate: "",
   registrationDeadline: "",
   maxParticipants: "",
+  whatsappGroupLink: "",
   status: "Upcoming",
   isFeatured: false,
   itinerary: [
@@ -162,6 +169,7 @@ export default function TrekFormDrawer({ open, onClose, trekId, onSuccess }) {
             ? new Date(t.registrationDeadline).toISOString().split("T")[0]
             : "",
           maxParticipants: t.maxParticipants ?? "",
+          whatsappGroupLink: t.whatsappGroupLink || "",
           status: t.status || "Upcoming",
           isFeatured: t.isFeatured || false,
           itinerary:
@@ -560,6 +568,27 @@ export default function TrekFormDrawer({ open, onClose, trekId, onSuccess }) {
                             </p>
                           )}
                         </div>
+                      </div>
+
+                      <div>
+                        <label className={labelCls}>
+                          WhatsApp Group Link
+                        </label>
+                        <input
+                          type="url"
+                          {...register("whatsappGroupLink")}
+                          placeholder="https://chat.whatsapp.com/…"
+                          className={inputCls(errors.whatsappGroupLink)}
+                        />
+                        {errors.whatsappGroupLink ? (
+                          <p className={errCls}>
+                            {errors.whatsappGroupLink.message}
+                          </p>
+                        ) : (
+                          <p className="text-white/30 text-xs mt-1">
+                            Shared with participants on the confirmation screen and email after they enroll.
+                          </p>
+                        )}
                       </div>
 
                       <div>

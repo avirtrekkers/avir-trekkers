@@ -180,11 +180,20 @@ async function sendEnrollmentConfirmation({ primaryContact, trek, bookingId, par
         </tr>
       </table>
 
+      ${trek.whatsappGroupLink ? `
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:18px;text-align:center;margin:0 0 20px;">
+        <p style="margin:0 0 4px;font-size:15px;font-weight:700;color:#0f172a;">Join the trek WhatsApp group</p>
+        <p style="margin:0 0 14px;color:#64748b;font-size:13px;line-height:1.6;">Get packing lists, updates and coordination details for ${trek.title || "your trek"}.</p>
+        <a href="${trek.whatsappGroupLink}" style="display:inline-block;background:#22c55e;color:#ffffff;font-size:14px;font-weight:700;padding:11px 26px;border-radius:10px;text-decoration:none;">Join Group</a>
+      </div>
+      ` : ""}
+
       ${divider()}
       <p style="color:#64748b;font-size:13px;margin:0 0 8px;"><strong style="color:#0f172a;">What's next?</strong></p>
       <ul style="margin:0;padding-left:20px;color:#64748b;font-size:13px;line-height:1.8;">
         <li>Our team will contact you on <strong>${primaryContact.mobile}</strong> within 24 hours.</li>
         <li>Payment details will be shared over WhatsApp/call.</li>
+        ${trek.whatsappGroupLink ? "<li>Join the trek WhatsApp group above for all updates.</li>" : ""}
         <li>Please save your Booking ID for future reference.</li>
         <li>Cancellation is allowed up to 7 days before the trek date.</li>
       </ul>

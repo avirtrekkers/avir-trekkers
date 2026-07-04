@@ -123,6 +123,14 @@ const trekSchema = new mongoose.Schema({
     requirements: [String],
     pickupPoints: [String],
 
+    // WhatsApp community group invite for this trek's participants.
+    // Shared on the enrollment success screen and confirmation email.
+    whatsappGroupLink: {
+        type: String,
+        default: "",
+        trim: true,
+    },
+
     status: {
         type: String,
         enum: ["Upcoming", "Ongoing", "Completed", "Cancelled"],
