@@ -440,10 +440,10 @@ export default function Home() {
                     </p>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                        {(review.name || review.userName || "A")[0].toUpperCase()}
+                        {(review.customerName || review.name || review.userName || "A")[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-text text-sm truncate">{review.name || review.userName || "Anonymous"}</p>
+                        <p className="font-semibold text-text text-sm truncate">{review.customerName || review.name || review.userName || "Anonymous"}</p>
                         {(review.trekName || review.trek?.name) && (
                           <p className="text-xs text-text-light truncate">{review.trekName || review.trek?.name}</p>
                         )}

@@ -162,8 +162,11 @@ export default function ReviewManagement() {
               <div key={id} className="glass-card rounded-2xl p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="font-medium text-text">{review.reviewerName || review.name || review.userName || "Anonymous"}</h3>
-                    <p className="text-xs text-text-light">{review.email || review.reviewerEmail || ""}</p>
+                    <h3 className="font-medium text-text">{review.customerName || review.reviewerName || review.name || "Anonymous"}</h3>
+                    <p className="text-xs text-text-light">
+                      {review.customerEmail || review.email || ""}
+                      {review.customerLocation ? ` · ${review.customerLocation}` : ""}
+                    </p>
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                     isApproved ? "bg-emerald-500/15 text-emerald-400" : "bg-amber-500/15 text-amber-400"
@@ -174,12 +177,12 @@ export default function ReviewManagement() {
 
                 <StarRating rating={review.rating || 0} />
 
-                <p className="text-sm text-text mt-3 mb-2 line-clamp-3">{review.comment || review.review || review.text || "No comment"}</p>
+                <p className="text-sm text-text mt-3 mb-2 line-clamp-3">{review.reviewText || review.comment || review.review || review.text || "No comment"}</p>
 
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
                   <div className="text-xs text-text-light">
-                    <span className="font-medium">{review.trekName || review.trek?.name || "Unknown trek"}</span>
-                    {review.createdAt && <span className="ml-2">{formatDate(review.createdAt)}</span>}
+                    <span className="font-medium">{review.trekName || review.trekId?.name || review.trek?.name || "Unknown trek"}</span>
+                    {(review.submissionDate || review.createdAt) && <span className="ml-2">{formatDate(review.submissionDate || review.createdAt)}</span>}
                   </div>
                   <div className="flex gap-1">
                     {!isApproved && (

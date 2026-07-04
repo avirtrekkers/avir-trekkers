@@ -434,12 +434,12 @@ export default function Reviews() {
                 <div className="flex items-center justify-between pt-3 border-t border-border">
                   <div>
                     <p className="font-semibold text-text text-sm">
-                      {review.name || review.userName || "Anonymous"}
+                      {review.customerName || review.name || review.userName || "Anonymous"}
                     </p>
-                    {(review.location || review.city) && (
+                    {(review.customerLocation || review.location || review.city) && (
                       <p className="text-xs text-text-light flex items-center gap-1 mt-0.5">
                         <MapPin className="h-3 w-3" />
-                        {review.location || review.city}
+                        {review.customerLocation || review.location || review.city}
                       </p>
                     )}
                   </div>
@@ -449,9 +449,9 @@ export default function Reviews() {
                         {review.trekName || review.trek?.name}
                       </p>
                     )}
-                    {(review.createdAt || review.date) && (
+                    {(review.formattedSubmissionDate || review.submissionDate || review.createdAt || review.date) && (
                       <p className="text-xs text-text-light mt-0.5">
-                        {formatDate(review.createdAt || review.date)}
+                        {review.formattedSubmissionDate || formatDate(review.submissionDate || review.createdAt || review.date)}
                       </p>
                     )}
                   </div>
