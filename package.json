@@ -4,8 +4,10 @@
   "private": true,
   "description": "Avir Trekkers - Trekking & Social Impact Platform",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/api",
+    "apps/admin-portal",
+    "apps/user-site",
+    "packages/shared"
   ],
   "scripts": {
     "dev:api": "cd apps/api && npm run dev",
