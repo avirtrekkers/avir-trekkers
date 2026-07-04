@@ -133,6 +133,10 @@ export default function Reviews() {
       setSubmitError("Please select which trek you're reviewing.");
       return;
     }
+    if (form.reviewText.trim().length < 10) {
+      setSubmitError("Please write at least 10 characters in your review.");
+      return;
+    }
     setSubmitting(true);
     setSubmitError("");
     try {
@@ -353,14 +357,21 @@ export default function Reviews() {
                     </label>
                     <textarea
                       required
+                      minLength={10}
+                      maxLength={1000}
                       rows={4}
                       value={form.reviewText}
                       onChange={(e) =>
                         handleFormChange("reviewText", e.target.value)
                       }
                       className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none"
-                      placeholder="Share your experience..."
+                      placeholder="Tell us about your experience — the trail, the guides, the views…"
                     />
+                    <p className={`text-xs mt-1 ${form.reviewText.trim().length > 0 && form.reviewText.trim().length < 10 ? "text-red-500" : "text-text-light"}`}>
+                      {form.reviewText.trim().length < 10
+                        ? `At least 10 characters (${form.reviewText.trim().length}/10)`
+                        : `${form.reviewText.length}/1000 characters`}
+                    </p>
                   </div>
                   {submitError && (
                     <p className="text-red-600 text-sm">{submitError}</p>

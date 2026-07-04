@@ -122,10 +122,18 @@ const submitReview = async (req, res) => {
     });
   } catch (error) {
     console.error('Error submitting review:', error);
+    // Surface Mongoose validation messages (e.g. review too short) to the user
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({
+        success: false,
+        message: messages[0] || 'Please check your review details.',
+        errors: messages,
+      });
+    }
     res.status(500).json({
       success: false,
-      message: 'Error submitting review',
-      error: error.message
+      message: 'Something went wrong submitting your review. Please try again.',
     });
   }
 };
