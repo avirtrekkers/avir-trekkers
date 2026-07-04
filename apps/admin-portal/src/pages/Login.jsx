@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { Loader2, Lock, Mail } from "lucide-react";
 
 export default function Login() {
@@ -34,14 +34,14 @@ export default function Login() {
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-float" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
 
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="w-full max-w-md glass-card rounded-2xl p-8 relative"
       >
         <div className="flex flex-col items-center mb-8">
-          <motion.img
+          <Motion.img
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", bounce: 0.4 }}
@@ -56,13 +56,13 @@ export default function Login() {
         </div>
 
         {error && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
           >
             {error}
-          </motion.div>
+          </Motion.div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -94,7 +94,7 @@ export default function Login() {
               />
             </div>
           </div>
-          <motion.button
+          <Motion.button
             type="submit"
             disabled={loading}
             whileHover={{ scale: 1.01 }}
@@ -109,9 +109,9 @@ export default function Login() {
             ) : (
               "Sign In"
             )}
-          </motion.button>
+          </Motion.button>
         </form>
-      </motion.div>
+      </Motion.div>
     </div>
   );
 }

@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   getSocialActivities, createSocialActivity, updateSocialActivity, deleteSocialActivity,
-  addSocialActivityImages, removeSocialActivityImage,
   getGalleryTreks, createGalleryTrek, updateGalleryTrek, deleteGalleryTrek,
-  addGalleryTrekImages, removeGalleryTrekImage,
   toggleSocialActivity, toggleGalleryTrek,
+  uploadImagesToUrls,
 } from "../services/api";
 import { formatDate } from "../lib/utils";
 import {
@@ -15,7 +14,6 @@ import {
 } from "lucide-react";
 import Pagination from "../components/common/Pagination";
 
-const CLOUD_BASE = import.meta.env.VITE_CLOUD_API_BASE || "https://dev-api.technootales.in/v1/cloud";
 const PAGE_SIZE = 9;
 
 const ACTIVITY_CATEGORIES = ["Education", "Environment", "Relief", "Conservation", "Adventure", "Other"];
@@ -24,34 +22,24 @@ const DIFFICULTY_OPTIONS  = ["Easy", "Moderate", "Hard", "Extreme"];
 const inputCls = "w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.06] text-white text-sm placeholder:text-white/25 focus:outline-none focus:ring-2 focus:ring-blue-500/40";
 const labelCls = "block text-xs font-medium text-white/50 mb-1.5";
 
-// ── Cloud image uploader ───────────────────────────────────────────────────────
-async function uploadToCloud(file) {
-  const form = new FormData();
-  form.append("file", file);
-  const res = await fetch(`${CLOUD_BASE}/file`, { method: "POST", body: form });
-  if (!res.ok) throw new Error("Upload failed");
-  const result = await res.json();
-  // API returns { file: { _id: "..." } } — construct URL from file ID
-  if (result.file?._id) return `${CLOUD_BASE}/file/${result.file._id}`;
-  // Fallback for other response shapes
-  return result.url || result.data?.url || result.fileUrl || null;
-}
-
 // ── Image uploader widget ──────────────────────────────────────────────────────
-function ImageUploader({ images = [], onAdd, onRemove, uploading, setUploading }) {
+function ImageUploader({ images = [], onAdd, onRemove, uploading, setUploading, folder = "gallery" }) {
   const fileRef = useRef();
+  const [uploadError, setUploadError] = useState(null);
 
   const handleFiles = async (files) => {
     const arr = Array.from(files).slice(0, 10 - images.length);
     if (!arr.length) return;
     setUploading(true);
+    setUploadError(null);
     try {
-      for (const file of arr) {
-        const url = await uploadToCloud(file);
-        if (url) onAdd(url);
+      const { urls, failed } = await uploadImagesToUrls(arr, folder);
+      urls.forEach((url) => onAdd(url));
+      if (failed.length > 0) {
+        setUploadError(`Failed: ${failed.map((f) => f.originalName).join(", ")}`);
       }
-    } catch {
-      // silently fail per-file; partial success is fine
+    } catch (err) {
+      setUploadError(err.response?.data?.message || "Upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -60,6 +48,11 @@ function ImageUploader({ images = [], onAdd, onRemove, uploading, setUploading }
   return (
     <div>
       <label className={labelCls}>Images</label>
+      {uploadError && (
+        <p className="text-xs text-red-400 mb-2 flex items-center gap-1">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {uploadError}
+        </p>
+      )}
 
       {/* Thumbnails */}
       {images.length > 0 && (
@@ -108,9 +101,9 @@ function DeleteModal({ item, label, onConfirm, onClose, loading }) {
   if (!item) return null;
   return (
     <AnimatePresence>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+      <Motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.15 }}
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
@@ -135,7 +128,7 @@ function DeleteModal({ item, label, onConfirm, onClose, loading }) {
             </button>
           </div>
         </div>
-      </motion.div>
+      </Motion.div>
     </AnimatePresence>
   );
 }
@@ -161,9 +154,9 @@ function ActivityModal({ item, onClose, onSave, saving }) {
 
   return (
     <AnimatePresence>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
-      <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+      <Motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className="fixed right-0 top-0 h-full w-full max-w-md bg-[#0f1117] border-l border-white/10 z-50 flex flex-col shadow-2xl"
       >
@@ -206,6 +199,7 @@ function ActivityModal({ item, onClose, onSave, saving }) {
             onRemove={(i) => setImages((p) => p.filter((_, idx) => idx !== i))}
             uploading={uploading}
             setUploading={setUploading}
+            folder="social"
           />
         </form>
         <div className="px-6 py-4 border-t border-white/10 flex gap-3 flex-shrink-0">
@@ -219,7 +213,7 @@ function ActivityModal({ item, onClose, onSave, saving }) {
             {saving ? "Saving..." : isEdit ? "Update" : "Create"}
           </button>
         </div>
-      </motion.div>
+      </Motion.div>
     </AnimatePresence>
   );
 }
@@ -246,9 +240,9 @@ function GalleryTrekModal({ item, onClose, onSave, saving }) {
 
   return (
     <AnimatePresence>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
-      <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+      <Motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className="fixed right-0 top-0 h-full w-full max-w-md bg-[#0f1117] border-l border-white/10 z-50 flex flex-col shadow-2xl"
       >
@@ -295,6 +289,7 @@ function GalleryTrekModal({ item, onClose, onSave, saving }) {
             onRemove={(i) => setImages((p) => p.filter((_, idx) => idx !== i))}
             uploading={uploading}
             setUploading={setUploading}
+            folder="gallery"
           />
         </form>
         <div className="px-6 py-4 border-t border-white/10 flex gap-3 flex-shrink-0">
@@ -308,14 +303,13 @@ function GalleryTrekModal({ item, onClose, onSave, saving }) {
             {saving ? "Saving..." : isEdit ? "Update" : "Create"}
           </button>
         </div>
-      </motion.div>
+      </Motion.div>
     </AnimatePresence>
   );
 }
 
 // ── Card component ─────────────────────────────────────────────────────────────
 function ItemCard({ item, onEdit, onDelete, onToggle, isActive, badge }) {
-  const id = item._id || item.id;
   const images = item.images || [];
 
   return (
@@ -548,7 +542,7 @@ export default function GalleryManagement() {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold font-heading text-text">Gallery Management</h1>
@@ -706,7 +700,7 @@ export default function GalleryManagement() {
       {/* Toast */}
       <AnimatePresence>
         {toast && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+          <Motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
             className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border text-sm shadow-xl ${
               toast.type === "success"
                 ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300"
@@ -714,9 +708,9 @@ export default function GalleryManagement() {
             }`}>
             {toast.type === "success" ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
             {toast.msg}
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </Motion.div>
   );
 }

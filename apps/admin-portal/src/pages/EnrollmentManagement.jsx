@@ -1,5 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import * as XLSX from "xlsx";
 import { getAllEnrollments, getAllTreks, updateEnrollment, cancelEnrollment } from "../services/api";
 import { formatPrice, formatDate, formatDateTime } from "../lib/utils";
@@ -49,12 +49,12 @@ function EditStatusModal({ enrollment, onClose, onSave, saving }) {
 
   return (
     <AnimatePresence>
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
         className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
       />
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.15 }}
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -160,7 +160,7 @@ function EditStatusModal({ enrollment, onClose, onSave, saving }) {
             </button>
           </div>
         </div>
-      </motion.div>
+      </Motion.div>
     </AnimatePresence>
   );
 }
@@ -170,12 +170,12 @@ function CancelConfirmModal({ enrollment, onClose, onConfirm, loading }) {
   if (!enrollment) return null;
   return (
     <AnimatePresence>
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
         className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
       />
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.15 }}
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -209,7 +209,7 @@ function CancelConfirmModal({ enrollment, onClose, onConfirm, loading }) {
             </button>
           </div>
         </div>
-      </motion.div>
+      </Motion.div>
     </AnimatePresence>
   );
 }
@@ -274,11 +274,6 @@ export default function EnrollmentManagement() {
   useEffect(() => { fetchData(); }, []);
   useEffect(() => { setPage(1); }, [search, trekFilter, statusFilter]);
 
-  // Open edit modal pre-focused on payment (rupee button click)
-  const handleQuickPay = (enrollment) => {
-    setEditTarget(enrollment);
-  };
-
   // Full edit modal save
   const handleEditSave = async (updates) => {
     const id = editTarget._id || editTarget.id;
@@ -304,7 +299,7 @@ export default function EnrollmentManagement() {
       setCancelTarget(null);
       await fetchData();
       showToast("success", "Enrollment cancelled");
-    } catch (err) {
+    } catch {
       // Fallback: use updateEnrollment if cancel endpoint fails
       try {
         await updateEnrollment(id, { enrollmentStatus: "Cancelled" });
@@ -388,7 +383,7 @@ export default function EnrollmentManagement() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold font-heading text-text">Enrollment Management</h1>
         <button
@@ -481,7 +476,6 @@ export default function EnrollmentManagement() {
                   const isExpanded = expandedId === id;
                   const paymentStatus    = (enrollment.paymentStatus    || "pending").toLowerCase();
                   const enrollmentStatus = (enrollment.enrollmentStatus || "pending").toLowerCase();
-                  const isPaid       = paymentStatus === "paid";
                   const isCancelled  = enrollmentStatus === "cancelled";
                   const isEditLoading= actionLoading === id + "_edit";
                   const isCancelLoad = actionLoading === id + "_cancel";
@@ -649,7 +643,7 @@ export default function EnrollmentManagement() {
       {/* Toast */}
       <AnimatePresence>
         {toast && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
             className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-xl border text-sm shadow-xl ${
               toast.type === "success"
@@ -659,9 +653,9 @@ export default function EnrollmentManagement() {
           >
             {toast.type === "success" ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
             {toast.msg}
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </Motion.div>
   );
 }

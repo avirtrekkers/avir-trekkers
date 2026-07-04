@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { Home } from "lucide-react";
+import usePageMeta from "../lib/usePageMeta";
 
 export default function NotFound() {
+  usePageMeta("Page Not Found");
   return (
     <div className="max-w-7xl mx-auto px-4 py-24 text-center">
       <h1 className="text-6xl font-bold font-heading text-primary mb-4">

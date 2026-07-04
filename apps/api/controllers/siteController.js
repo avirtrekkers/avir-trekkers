@@ -2,6 +2,7 @@ const SiteStats    = require("../Models/SiteStatsModel");
 const SiteSettings = require("../Models/SiteSettingsModel");
 const HeroSlide    = require("../Models/HeroSlideModel");
 const TeamMember   = require("../Models/TeamMemberModel");
+const { cleanupUrls } = require("../utils/mediaCleanup");
 
 /* ─────────────────────── PUBLIC ─────────────────────── */
 
@@ -75,11 +76,32 @@ const updateSettings = async (req, res) => {
     const updates = {};
     allowed.forEach((k) => { if (req.body[k] !== undefined) updates[k] = req.body[k]; });
 
+    const HERO_KEYS = ["treks", "gallery", "ourWork", "contact", "aboutStory", "socialImpact"];
+    let previousHeroes = null;
+    if (req.body.pageHeroes && typeof req.body.pageHeroes === "object") {
+      previousHeroes = (await SiteSettings.findOne().lean())?.pageHeroes || {};
+      HERO_KEYS.forEach((k) => {
+        if (typeof req.body.pageHeroes[k] === "string") {
+          updates[`pageHeroes.${k}`] = req.body.pageHeroes[k];
+        }
+      });
+    }
+
     const settings = await SiteSettings.findOneAndUpdate(
       {},
       { $set: updates },
       { upsert: true, new: true, runValidators: true }
     );
+
+    // Clean up replaced hero images
+    if (previousHeroes) {
+      const replaced = HERO_KEYS
+        .filter((k) => updates[`pageHeroes.${k}`] !== undefined
+          && previousHeroes[k]
+          && previousHeroes[k] !== updates[`pageHeroes.${k}`])
+        .map((k) => previousHeroes[k]);
+      if (replaced.length) cleanupUrls(replaced);
+    }
     res.json({ success: true, data: settings, message: "Settings updated" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to update settings" });
@@ -103,8 +125,12 @@ const createHeroSlide = async (req, res) => {
 // PUT /api/site/hero-slides/:id
 const updateHeroSlide = async (req, res) => {
   try {
+    const previous = await HeroSlide.findById(req.params.id);
+    if (!previous) return res.status(404).json({ success: false, message: "Slide not found" });
     const slide = await HeroSlide.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!slide) return res.status(404).json({ success: false, message: "Slide not found" });
+    if (previous.image && req.body.image && previous.image !== req.body.image) {
+      cleanupUrls(previous.image);
+    }
     res.json({ success: true, data: slide, message: "Hero slide updated" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to update hero slide" });
@@ -116,6 +142,7 @@ const deleteHeroSlide = async (req, res) => {
   try {
     const slide = await HeroSlide.findByIdAndDelete(req.params.id);
     if (!slide) return res.status(404).json({ success: false, message: "Slide not found" });
+    cleanupUrls(slide.image);
     res.json({ success: true, message: "Hero slide deleted" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to delete hero slide" });
@@ -139,8 +166,12 @@ const createTeamMember = async (req, res) => {
 // PUT /api/site/team/:id
 const updateTeamMember = async (req, res) => {
   try {
+    const previous = await TeamMember.findById(req.params.id);
+    if (!previous) return res.status(404).json({ success: false, message: "Team member not found" });
     const member = await TeamMember.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!member) return res.status(404).json({ success: false, message: "Team member not found" });
+    if (previous.photo && req.body.photo && previous.photo !== req.body.photo) {
+      cleanupUrls(previous.photo);
+    }
     res.json({ success: true, data: member, message: "Team member updated" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to update team member" });
@@ -152,6 +183,7 @@ const deleteTeamMember = async (req, res) => {
   try {
     const member = await TeamMember.findByIdAndDelete(req.params.id);
     if (!member) return res.status(404).json({ success: false, message: "Team member not found" });
+    cleanupUrls(member.photo);
     res.json({ success: true, message: "Team member deleted" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to delete team member" });

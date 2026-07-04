@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_API_URL || "/api",
   timeout: 15000,
   headers: { "Content-Type": "application/json" },
 });
@@ -27,6 +27,30 @@ api.interceptors.response.use(
 
 // Auth
 export const adminLogin = (data) => api.post("/auth/login", data);
+
+// Media (Cloudinary via backend)
+// folder: treks | gallery | social | hero | team | misc
+export const uploadImages = (files, folder = "misc") => {
+  const formData = new FormData();
+  const list = Array.isArray(files) ? files : [files];
+  list.forEach((file) => formData.append("images", file));
+  formData.append("folder", folder);
+  return api.post("/media/images", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: 60000, // uploads can outlive the default 15s
+  });
+};
+export const deleteImage = (publicId) => api.delete("/media/images", { data: { publicId } });
+
+/**
+ * Upload files and return { urls, failed }. urls are optimized Cloudinary
+ * delivery URLs; failed is [{ originalName, error }].
+ */
+export const uploadImagesToUrls = async (files, folder) => {
+  const res = await uploadImages(files, folder);
+  const { uploaded = [], failed = [] } = res.data?.data || {};
+  return { urls: uploaded.map((u) => u.url), uploaded, failed };
+};
 
 // Treks (admin)
 export const getAllTreks = () => api.get("/treks/admin/all");

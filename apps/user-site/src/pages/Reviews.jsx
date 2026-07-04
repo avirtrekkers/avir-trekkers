@@ -5,8 +5,9 @@ import {
   submitReview,
   getPublicTreks,
 } from "../services/api";
-import { formatDate, truncate } from "../lib/utils";
-import { motion } from "framer-motion";
+import { formatDate } from "../lib/utils";
+import { motion as Motion } from "framer-motion";
+import usePageMeta from "../lib/usePageMeta";
 import {
   Star,
   MessageSquare,
@@ -68,6 +69,7 @@ function ReviewSkeleton() {
 }
 
 export default function Reviews() {
+  usePageMeta("Reviews", "What trekkers say about their experiences with Avir Trekkers.");
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState(null);
   const [treks, setTreks] = useState([]);
@@ -166,13 +168,13 @@ export default function Reviews() {
       {/* Header */}
       <section className="bg-gradient-to-r from-primary-dark to-primary text-white py-16 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <motion.h1
+          <Motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-3xl md:text-5xl font-bold font-heading mb-4"
           >
             Trekker Reviews
-          </motion.h1>
+          </Motion.h1>
           <p className="text-white/80 text-lg max-w-2xl mx-auto">
             What our community of adventurers has to say
           </p>
@@ -182,7 +184,7 @@ export default function Reviews() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats Bar */}
         {!loading && reviews.length > 0 && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl shadow-sm p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4"
@@ -205,7 +207,7 @@ export default function Reviews() {
               <MessageSquare className="h-4 w-4" />
               Write a Review
             </button>
-          </motion.div>
+          </Motion.div>
         )}
 
         {/* Write a Review Button (when no stats) */}
@@ -223,13 +225,13 @@ export default function Reviews() {
 
         {/* Review Form Modal */}
         {showForm && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
             onClick={() => setShowForm(false)}
           >
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl"
@@ -350,8 +352,8 @@ export default function Reviews() {
                   </button>
                 </form>
               )}
-            </motion.div>
-          </motion.div>
+            </Motion.div>
+          </Motion.div>
         )}
 
         {/* Loading */}
@@ -380,7 +382,7 @@ export default function Reviews() {
         {!loading && reviews.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {reviews.map((review, index) => (
-              <motion.div
+              <Motion.div
                 key={review._id || index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -416,7 +418,7 @@ export default function Reviews() {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </Motion.div>
             ))}
           </div>
         )}

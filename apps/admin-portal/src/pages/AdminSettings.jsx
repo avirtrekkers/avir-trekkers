@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { changePassword } from "../services/api";
 import { User, Lock, LogOut, Save, Loader2, Shield, Eye, EyeOff, CheckCircle2, AlertCircle, AlertTriangle, X } from "lucide-react";
@@ -35,9 +35,9 @@ function PasswordField({ label, value, onChange, placeholder }) {
 function LogoutModal({ onConfirm, onClose }) {
   return (
     <AnimatePresence>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+      <Motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.15 }}
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
@@ -61,7 +61,7 @@ function LogoutModal({ onConfirm, onClose }) {
             </button>
           </div>
         </div>
-      </motion.div>
+      </Motion.div>
     </AnimatePresence>
   );
 }
@@ -125,7 +125,7 @@ export default function AdminSettings() {
   const strength = passwordStrength(newPassword);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
+    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
       <h1 className="text-2xl font-bold font-heading text-text mb-6">Settings</h1>
 
       {/* Admin Profile */}
@@ -175,7 +175,7 @@ export default function AdminSettings() {
 
         <AnimatePresence>
           {message && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className={`mb-4 flex items-start gap-3 px-4 py-3 rounded-xl text-sm border ${
                 message.type === "error"
@@ -190,7 +190,7 @@ export default function AdminSettings() {
               <button onClick={() => setMessage(null)} className="ml-auto hover:opacity-70 transition-opacity">
                 <X className="w-4 h-4" />
               </button>
-            </motion.div>
+            </Motion.div>
           )}
         </AnimatePresence>
 
@@ -266,6 +266,6 @@ export default function AdminSettings() {
           onClose={() => setShowLogoutModal(false)}
         />
       )}
-    </motion.div>
+    </Motion.div>
   );
 }

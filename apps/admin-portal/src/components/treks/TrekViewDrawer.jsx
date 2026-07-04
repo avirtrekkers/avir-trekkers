@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   X, Loader2, MapPin, Mountain, Calendar, Users, Tag,
   Clock, IndianRupee, CheckCircle2, XCircle, AlertCircle, Navigation,
@@ -55,40 +55,25 @@ function TagList({ items = [] }) {
   );
 }
 
-export default function TrekViewDrawer({ open, onClose, trekId, onEdit }) {
+function TrekDetails({ trekId, onClose, onEdit }) {
   const [trek, setTrek] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // Mounted fresh (keyed on trekId) each time the drawer opens, so state
+  // starts in "loading" and is set only from the async response below.
+  const [loading, setLoading] = useState(() => Boolean(trekId));
 
   useEffect(() => {
-    if (!open || !trekId) { setTrek(null); return; }
-    setLoading(true);
+    if (!trekId) return;
     getTrekById(trekId)
       .then((res) => setTrek(res.data?.data || res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [open, trekId]);
+  }, [trekId]);
 
   const difficulty = (trek?.difficulty || "").toLowerCase();
   const status = (trek?.status || "").toLowerCase();
 
   return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-          />
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 h-full w-full max-w-xl bg-[#0f1117] border-l border-white/10 z-50 flex flex-col shadow-2xl"
-          >
+    <>
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 flex-shrink-0">
               <div>
@@ -244,7 +229,31 @@ export default function TrekViewDrawer({ open, onClose, trekId, onEdit }) {
                 </div>
               </div>
             )}
-          </motion.div>
+    </>
+  );
+}
+
+export default function TrekViewDrawer({ open, onClose, trekId, onEdit }) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <Motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          />
+          <Motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed right-0 top-0 h-full w-full max-w-xl bg-[#0f1117] border-l border-white/10 z-50 flex flex-col shadow-2xl"
+          >
+            <TrekDetails key={trekId || "none"} trekId={trekId} onClose={onClose} onEdit={onEdit} />
+          </Motion.div>
         </>
       )}
     </AnimatePresence>

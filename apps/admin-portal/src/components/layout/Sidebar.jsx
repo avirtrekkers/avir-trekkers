@@ -5,7 +5,7 @@ import {
   FolderOpen, Settings, LogOut, ChevronLeft, Menu, Globe
 } from "lucide-react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
@@ -30,7 +30,7 @@ export default function Sidebar() {
   };
 
   return (
-    <motion.aside
+    <Motion.aside
       animate={{ width: collapsed ? 72 : 260 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="glass-sidebar text-white flex flex-col h-screen sticky top-0"
@@ -39,7 +39,7 @@ export default function Sidebar() {
       <div className="flex items-center justify-between px-4 h-16 border-b border-white/[0.06]">
         <AnimatePresence mode="wait">
           {!collapsed && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
@@ -49,7 +49,7 @@ export default function Sidebar() {
               <span className="text-lg font-bold font-heading bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
                 Admin
               </span>
-            </motion.div>
+            </Motion.div>
           )}
         </AnimatePresence>
         {collapsed && <img src="/logo.png" alt="Avir Trekkers" className="h-8 w-auto rounded" />}
@@ -63,7 +63,7 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 py-4 space-y-1 px-2 overflow-y-auto">
-        {navItems.map(({ name, path, icon: Icon }, index) => (
+        {navItems.map(({ name, path, icon: Icon }) => (
           <NavLink
             key={path}
             to={path}
@@ -79,7 +79,7 @@ export default function Sidebar() {
             {({ isActive }) => (
               <>
                 {isActive && (
-                  <motion.div
+                  <Motion.div
                     layoutId="activeNav"
                     className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-gradient-to-b from-blue-400 to-violet-400 rounded-r-full"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -88,14 +88,14 @@ export default function Sidebar() {
                 <Icon className={`h-5 w-5 flex-shrink-0 transition-colors ${isActive ? "text-blue-400" : "group-hover:text-blue-300"}`} />
                 <AnimatePresence mode="wait">
                   {!collapsed && (
-                    <motion.span
+                    <Motion.span
                       initial={{ opacity: 0, width: 0 }}
                       animate={{ opacity: 1, width: "auto" }}
                       exit={{ opacity: 0, width: 0 }}
                       className="whitespace-nowrap overflow-hidden"
                     >
                       {name}
-                    </motion.span>
+                    </Motion.span>
                   )}
                 </AnimatePresence>
               </>
@@ -113,17 +113,17 @@ export default function Sidebar() {
           <LogOut className="h-5 w-5 flex-shrink-0" />
           <AnimatePresence mode="wait">
             {!collapsed && (
-              <motion.span
+              <Motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
                 Logout
-              </motion.span>
+              </Motion.span>
             )}
           </AnimatePresence>
         </button>
       </div>
-    </motion.aside>
+    </Motion.aside>
   );
 }

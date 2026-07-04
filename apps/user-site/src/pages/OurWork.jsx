@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { getSocialActivities, getSiteStats } from "../services/api";
-import { motion, useInView } from "framer-motion";
+import { motion as Motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
+import usePageMeta from "../lib/usePageMeta";
+import usePageHero from "../lib/usePageHero";
 import {
   Heart,
   GraduationCap,
@@ -108,7 +110,7 @@ function ActivityCard({ activity, index }) {
       : activity.description || activity.caption || activity.text || "";
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -151,11 +153,13 @@ function ActivityCard({ activity, index }) {
           </p>
         )}
       </div>
-    </motion.div>
+    </Motion.div>
   );
 }
 
 export default function OurWork() {
+  const heroBg = usePageHero("ourWork", HERO_BG);
+  usePageMeta("Our Work", "Social impact initiatives and community activities by Avir Trekkers.");
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(FALLBACK_STATS);
@@ -194,7 +198,7 @@ export default function OurWork() {
       <section className="relative py-28 px-4 overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={HERO_BG}
+            src={heroBg}
             alt=""
             className="w-full h-full object-cover"
             loading="lazy"
@@ -203,7 +207,7 @@ export default function OurWork() {
           <div className="absolute inset-0 bg-gradient-to-b from-primary-dark/80 via-primary/70 to-primary-dark/85" />
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -219,10 +223,10 @@ export default function OurWork() {
               At Avir Trekkers, adventure and social responsibility go hand in hand.
               Every trek we organise is an opportunity to give back to the communities we visit.
             </p>
-          </motion.div>
+          </Motion.div>
 
           {/* Inline quick-stats in hero */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.25 }}
@@ -239,7 +243,7 @@ export default function OurWork() {
                 <span className="text-white/65 text-sm ml-1.5">{label}</span>
               </div>
             ))}
-          </motion.div>
+          </Motion.div>
         </div>
       </section>
 
@@ -252,8 +256,8 @@ export default function OurWork() {
               { icon: Bike,          label: "Cycles Donated",    value: stats.cycles },
               { icon: Users,         label: "Lives Impacted",    value: stats.lives },
               { icon: HandHeart,     label: "Drives Organized",  value: stats.drives },
-            ].map(({ icon: Icon, label, value }, index) => (
-              <motion.div
+            ].map((item, index) => { const { icon: Icon, label, value } = item; return (
+              <Motion.div
                 key={label}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -270,8 +274,8 @@ export default function OurWork() {
                 <div className="text-white/55 text-xs font-medium uppercase tracking-wide">
                   {label}
                 </div>
-              </motion.div>
-            ))}
+              </Motion.div>
+            ); })}
           </div>
         </div>
       </section>
@@ -279,7 +283,7 @@ export default function OurWork() {
       {/* ── INITIATIVES ── */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -294,11 +298,11 @@ export default function OurWork() {
             <p className="text-text-light text-sm">
               Programs that create lasting positive change
             </p>
-          </motion.div>
+          </Motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {INITIATIVES.map(({ icon: Icon, bg, color, tag, title, description }, index) => (
-              <motion.div
+            {INITIATIVES.map((item, index) => { const { icon: Icon, bg, color, tag, title, description } = item; return (
+              <Motion.div
                 key={title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -318,8 +322,8 @@ export default function OurWork() {
                   <h3 className="text-lg font-heading font-bold text-text mb-2">{title}</h3>
                   <p className="text-text-light text-sm leading-relaxed">{description}</p>
                 </div>
-              </motion.div>
-            ))}
+              </Motion.div>
+            ); })}
           </div>
         </div>
       </section>
@@ -327,7 +331,7 @@ export default function OurWork() {
       {/* ── RECENT ACTIVITIES ── */}
       <section className="py-16 px-4 bg-slate-50">
         <div className="max-w-7xl mx-auto">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -342,7 +346,7 @@ export default function OurWork() {
             <p className="text-text-light text-sm">
               Moments from our social impact work across Maharashtra
             </p>
-          </motion.div>
+          </Motion.div>
 
           {loading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -377,7 +381,7 @@ export default function OurWork() {
       {/* ── CTA ── */}
       <section className="py-14 px-4 bg-gradient-to-r from-[#0B2545] to-[#1D3557] text-white">
         <div className="max-w-3xl mx-auto text-center">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -403,7 +407,7 @@ export default function OurWork() {
                 Get in Touch <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-          </motion.div>
+          </Motion.div>
         </div>
       </section>
 

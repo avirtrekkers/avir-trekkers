@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { getInquiries, updateInquiryStatus, replyToInquiry } from "../services/api";
 import {
   MessageCircle, Mail, Phone, Clock, Search, X,
@@ -80,7 +80,9 @@ export default function Inquiries() {
     try {
       await updateInquiryStatus(id, status);
       setInquiries(prev => prev.map(q => q._id === id ? { ...q, status } : q));
-    } catch {}
+    } catch {
+      /* keep previous status on failure */
+    }
     setActionId(null);
   };
 
@@ -135,7 +137,7 @@ export default function Inquiries() {
   const newCount = inquiries.filter(q => q.status === "new").length;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold font-heading text-text">Inquiries</h1>
@@ -197,7 +199,7 @@ export default function Inquiries() {
             const isReplying = replyId === inquiry._id;
 
             return (
-              <motion.div key={inquiry._id} layout
+              <Motion.div key={inquiry._id} layout
                 className={`glass-card rounded-2xl overflow-hidden transition-shadow ${inquiry.status === "new" ? "border border-blue-500/20" : ""}`}
               >
                 {/* Header */}
@@ -231,7 +233,7 @@ export default function Inquiries() {
                 {/* Expanded */}
                 <AnimatePresence>
                   {isExpanded && (
-                    <motion.div
+                    <Motion.div
                       initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}
                       className="overflow-hidden"
@@ -283,7 +285,7 @@ export default function Inquiries() {
                         {/* Reply Drawer */}
                         <AnimatePresence>
                           {isReplying && (
-                            <motion.div
+                            <Motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
@@ -344,14 +346,14 @@ export default function Inquiries() {
                                   </button>
                                 </div>
                               </div>
-                            </motion.div>
+                            </Motion.div>
                           )}
                         </AnimatePresence>
                       </div>
-                    </motion.div>
+                    </Motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </Motion.div>
             );
           })}
         </div>
@@ -362,6 +364,6 @@ export default function Inquiries() {
           Showing {filtered.length} of {inquiries.length} inquir{inquiries.length !== 1 ? "ies" : "y"}
         </p>
       )}
-    </motion.div>
+    </Motion.div>
   );
 }

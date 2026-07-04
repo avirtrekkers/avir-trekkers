@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { getSiteStats, getTeamMembers } from "../services/api";
+import usePageMeta from "../lib/usePageMeta";
+import usePageHero from "../lib/usePageHero";
 import {
   Mountain, Heart, Target, Users, ArrowRight,
   MapPin, Shield, ChevronLeft, ChevronRight, Flag,
@@ -10,6 +12,7 @@ import {
 const STORY_IMG = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=80";
 
 function VisualStory({ stats }) {
+  const storyImg = usePageHero("aboutStory", STORY_IMG);
   const items = [
     { label: "Weekend treks",        icon: Mountain },
     { label: "Community events",     icon: Users },
@@ -24,28 +27,28 @@ function VisualStory({ stats }) {
   ];
   return (
     <div className="w-full flex flex-col gap-4">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}
+      <Motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}
         className="relative rounded-2xl overflow-hidden h-52 shadow-md">
-        <img src={STORY_IMG} alt="Avir Trekkers in the Sahyadri" className="w-full h-full object-cover" />
+        <img src={storyImg} alt="Avir Trekkers in the Sahyadri" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
         <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
           <p className="text-white font-semibold text-sm drop-shadow">Sahyadri Range, Maharashtra</p>
           <span className="px-2.5 py-1 bg-orange-500 text-white text-xs font-bold rounded-full">Est. {stats.foundedYear || 2020}</span>
         </div>
-      </motion.div>
+      </Motion.div>
       <div className="grid grid-cols-2 gap-3">
-        {items.map(({ label, icon: Icon }, i) => (
-          <motion.div key={label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+        {items.map((item, i) => { const { label, icon: Icon } = item; return (
+          <Motion.div key={label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 + i * 0.08 }}
             className="flex items-center gap-3 bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-3.5">
             <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
               <Icon className="w-4 h-4 text-orange-500" />
             </div>
             <span className="text-slate-700 text-sm font-medium">{label}</span>
-          </motion.div>
-        ))}
+          </Motion.div>
+        ); })}
       </div>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+      <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
         className="grid grid-cols-4 gap-3 pt-1">
         {miniStats.map(({ value, label }) => (
           <div key={label} className="bg-white border border-slate-200 rounded-xl p-3 text-center">
@@ -53,7 +56,7 @@ function VisualStory({ stats }) {
             <div className="text-xs text-slate-400 mt-0.5">{label}</div>
           </div>
         ))}
-      </motion.div>
+      </Motion.div>
     </div>
   );
 }
@@ -67,8 +70,8 @@ function VisualMission() {
   ];
   return (
     <div className="w-full grid grid-cols-2 gap-4">
-      {items.map(({ icon: Icon, bg, color, title, desc }, i) => (
-        <motion.div key={title} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+      {items.map((item, i) => { const { icon: Icon, bg, color, title, desc } = item; return (
+        <Motion.div key={title} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
           className="flex flex-col gap-3 bg-white border border-slate-200 shadow-sm rounded-2xl p-5">
           <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center flex-shrink-0`}>
             <Icon className={`w-5 h-5 ${color}`} />
@@ -77,8 +80,8 @@ function VisualMission() {
             <p className="text-slate-800 font-semibold text-sm">{title}</p>
             <p className="text-slate-400 text-xs mt-1.5 leading-relaxed">{desc}</p>
           </div>
-        </motion.div>
-      ))}
+        </Motion.div>
+      ); })}
     </div>
   );
 }
@@ -92,8 +95,8 @@ function VisualVision({ stats }) {
   ];
   return (
     <div className="w-full grid grid-cols-2 gap-4">
-      {items.map(({ icon: Icon, bg, color, value, label, desc }, i) => (
-        <motion.div key={label} initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.09 }}
+      {items.map((item, i) => { const { icon: Icon, bg, color, value, label, desc } = item; return (
+        <Motion.div key={label} initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.09 }}
           className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 flex flex-col">
           <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center mb-4`}>
             <Icon className={`w-5 h-5 ${color}`} />
@@ -101,8 +104,8 @@ function VisualVision({ stats }) {
           <span className="text-4xl font-bold text-slate-800 leading-none">{value}</span>
           <span className="text-slate-700 text-sm font-semibold mt-2">{label}</span>
           <span className="text-slate-400 text-xs mt-1 leading-relaxed">{desc}</span>
-        </motion.div>
-      ))}
+        </Motion.div>
+      ); })}
     </div>
   );
 }
@@ -116,8 +119,8 @@ function VisualValues() {
   ];
   return (
     <div className="w-full grid grid-cols-2 gap-4">
-      {vals.map(({ icon: Icon, bg, color, title, desc }, i) => (
-        <motion.div key={title} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+      {vals.map((item, i) => { const { icon: Icon, bg, color, title, desc } = item; return (
+        <Motion.div key={title} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
           className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 flex flex-col gap-3">
           <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center`}>
             <Icon className={`w-5 h-5 ${color}`} />
@@ -126,8 +129,8 @@ function VisualValues() {
             <p className="text-slate-800 font-semibold text-sm">{title}</p>
             <p className="text-slate-400 text-xs mt-1.5 leading-relaxed">{desc}</p>
           </div>
-        </motion.div>
-      ))}
+        </Motion.div>
+      ); })}
     </div>
   );
 }
@@ -153,6 +156,7 @@ const slideVariants = (dir) => ({
 });
 
 export default function About() {
+  usePageMeta("About Us", "Our story, mission and the team behind Avir Trekkers.");
   const [current, setCurrent] = useState(0);
   const [dir, setDir] = useState(1);
   const [stats, setStats] = useState({ treks: 50, trekkers: 500, schools: 20, cycles: 100, drives: 30, lives: 1000, forts: 25, foundedYear: 2020 });
@@ -213,16 +217,16 @@ export default function About() {
           <div className="relative z-10 flex-1 flex flex-col justify-center">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/35 mb-4">{slide.label}</p>
             <AnimatePresence mode="wait">
-              <motion.h1 key={slide.id + "-h"} variants={vars} initial="enter" animate="center" exit="exit"
+              <Motion.h1 key={slide.id + "-h"} variants={vars} initial="enter" animate="center" exit="exit"
                 className="text-3xl lg:text-[2.25rem] font-bold font-heading leading-snug mb-5">
                 {slide.heading}
-              </motion.h1>
+              </Motion.h1>
             </AnimatePresence>
             <AnimatePresence mode="wait">
-              <motion.p key={slide.id + "-p"} variants={vars} initial="enter" animate="center" exit="exit"
+              <Motion.p key={slide.id + "-p"} variants={vars} initial="enter" animate="center" exit="exit"
                 className="text-white/60 text-sm leading-relaxed max-w-md">
                 {slide.body}
-              </motion.p>
+              </Motion.p>
             </AnimatePresence>
           </div>
 
@@ -270,9 +274,9 @@ export default function About() {
             </div>
             <div className="flex-1 flex flex-col justify-center">
               <AnimatePresence mode="wait">
-                <motion.div key={slide.id + "-v"} variants={vars} initial="enter" animate="center" exit="exit" className="w-full">
+                <Motion.div key={slide.id + "-v"} variants={vars} initial="enter" animate="center" exit="exit" className="w-full">
                   {renderVisual()}
-                </motion.div>
+                </Motion.div>
               </AnimatePresence>
             </div>
             <span className="absolute bottom-4 right-6 text-6xl font-black text-slate-200 select-none pointer-events-none uppercase">
@@ -291,7 +295,7 @@ export default function About() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {team.map((m, i) => (
-              <motion.div key={m._id || i}
+              <Motion.div key={m._id || i}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.08 }}
                 className="bg-slate-50 rounded-2xl border border-slate-200 p-6 text-center hover:-translate-y-1 transition-transform">
@@ -307,7 +311,7 @@ export default function About() {
                 <h3 className="font-heading font-semibold text-text mb-0.5">{m.name}</h3>
                 <p className="text-xs font-semibold text-orange-500 mb-2">{m.role}</p>
                 <p className="text-xs text-text-light leading-relaxed">{m.description}</p>
-              </motion.div>
+              </Motion.div>
             ))}
           </div>
         </div>

@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   adminGetSiteStats, adminUpdateSiteStats,
   adminGetSiteSettings, adminUpdateSiteSettings,
   adminGetHeroSlides, adminCreateHeroSlide, adminUpdateHeroSlide, adminDeleteHeroSlide,
   adminGetTeam, adminCreateTeamMember, adminUpdateTeamMember, adminDeleteTeamMember,
+  uploadImagesToUrls,
 } from "../services/api";
 import {
   BarChart2, Settings2, Images, Users,
@@ -12,22 +13,11 @@ import {
   GripVertical, ToggleLeft, ToggleRight, Upload, ImageIcon,
 } from "lucide-react";
 
-const CLOUD_BASE = import.meta.env.VITE_CLOUD_API_BASE || "https://dev-api.technootales.in/v1/cloud";
-
-async function uploadToCloud(file) {
-  const form = new FormData();
-  form.append("file", file);
-  const res = await fetch(`${CLOUD_BASE}/file`, { method: "POST", body: form });
-  if (!res.ok) throw new Error("Upload failed");
-  const result = await res.json();
-  if (result.file?._id) return `${CLOUD_BASE}/file/${result.file._id}`;
-  return result.url || result.data?.url || result.fileUrl || null;
-}
-
 const TABS = [
   { key: "stats",    label: "Impact Stats",  icon: BarChart2 },
   { key: "settings", label: "Site Settings", icon: Settings2 },
   { key: "slides",   label: "Hero Slides",   icon: Images },
+  { key: "heroes",   label: "Page Heroes",   icon: ImageIcon },
   { key: "team",     label: "Team Members",  icon: Users },
 ];
 
@@ -36,7 +26,7 @@ const labelCls = "block text-xs font-medium text-white/50 mb-1";
 
 function Toast({ message, type, onClose }) {
   return (
-    <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+    <Motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm border mb-5 ${
         type === "success"
           ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
@@ -46,7 +36,7 @@ function Toast({ message, type, onClose }) {
       {type === "success" ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
       <span>{message}</span>
       <button onClick={onClose} className="ml-auto hover:opacity-70"><X className="w-4 h-4" /></button>
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -181,6 +171,108 @@ function SettingsTab() {
   );
 }
 
+/* ─────────────── PAGE HEROES TAB ─────────────── */
+const PAGE_HERO_FIELDS = [
+  { key: "treks",        label: "Treks Page Hero",            hint: "Banner behind the Treks page title" },
+  { key: "gallery",      label: "Gallery Page Hero",          hint: "Banner behind the Gallery page title" },
+  { key: "ourWork",      label: "Our Work Page Hero",         hint: "Banner behind the Our Work page title" },
+  { key: "contact",      label: "Contact Page Hero",          hint: "Banner behind the Contact page title" },
+  { key: "aboutStory",   label: "About — Story Image",        hint: "Image beside the story section on About" },
+  { key: "socialImpact", label: "Home — Social Impact BG",    hint: "Background of the social impact section on Home" },
+];
+
+function PageHeroesTab() {
+  const [heroes, setHeroes]     = useState({});
+  const [loading, setLoading]   = useState(true);
+  const [saving, setSaving]     = useState(false);
+  const [uploadingKey, setUploadingKey] = useState(null);
+  const [toast, setToast]       = useState(null);
+  const fileRefs = useRef({});
+
+  useEffect(() => {
+    adminGetSiteSettings()
+      .then((r) => setHeroes(r.data?.data?.pageHeroes || {}))
+      .catch(() => setToast({ type: "error", message: "Failed to load page heroes" }))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleUpload = async (key, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingKey(key);
+      const { urls } = await uploadImagesToUrls([file], "hero");
+      if (!urls[0]) throw new Error("No URL returned");
+      setHeroes((p) => ({ ...p, [key]: urls[0] }));
+    } catch (err) {
+      setToast({ type: "error", message: err.response?.data?.message || "Image upload failed" });
+    } finally {
+      setUploadingKey(null);
+      e.target.value = "";
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await adminUpdateSiteSettings({ pageHeroes: heroes });
+      setToast({ type: "success", message: "Page heroes saved" });
+    } catch {
+      setToast({ type: "error", message: "Failed to save page heroes" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-white/40" /></div>;
+
+  return (
+    <div>
+      <AnimatePresence>{toast && <Toast {...toast} onClose={() => setToast(null)} />}</AnimatePresence>
+      <p className="text-sm text-white/40 mb-6">
+        Hero and background images for individual pages on the public site. Pages fall back to a default image when unset.
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        {PAGE_HERO_FIELDS.map(({ key, label, hint }) => (
+          <div key={key} className="glass rounded-xl p-4">
+            <label className={labelCls}>{label}</label>
+            <p className="text-[11px] text-white/30 mb-2">{hint}</p>
+            <div className="aspect-video rounded-lg overflow-hidden bg-white/[0.06] mb-3 relative">
+              {heroes[key] ? (
+                <img src={heroes[key]} alt={label} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-white/25 text-xs">
+                  Using default image
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => fileRefs.current[key]?.click()} disabled={uploadingKey === key}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-white/20 text-white/60 hover:border-blue-500/40 hover:text-blue-400 text-xs transition-colors disabled:opacity-50">
+                {uploadingKey === key ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                {uploadingKey === key ? "Uploading…" : heroes[key] ? "Replace" : "Upload"}
+              </button>
+              {heroes[key] && (
+                <button type="button" onClick={() => setHeroes((p) => ({ ...p, [key]: "" }))}
+                  className="px-3 py-2 rounded-lg border border-white/10 text-white/40 hover:text-red-400 hover:border-red-500/30 text-xs transition-colors">
+                  Reset
+                </button>
+              )}
+            </div>
+            <input ref={(el) => (fileRefs.current[key] = el)} type="file" accept="image/*" className="hidden"
+              onChange={(e) => handleUpload(key, e)} />
+          </div>
+        ))}
+      </div>
+      <button onClick={handleSave} disabled={saving || uploadingKey !== null}
+        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors disabled:opacity-50">
+        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+        {saving ? "Saving…" : "Save Page Heroes"}
+      </button>
+    </div>
+  );
+}
+
 /* ─────────────── HERO SLIDES TAB ─────────────── */
 const BLANK_SLIDE = { image: "", headline: "", highlight: "", subtext: "", order: 0, isActive: true };
 
@@ -201,11 +293,11 @@ function HeroSlidesTab() {
     if (!file) return;
     try {
       setUploading(true);
-      const url = await uploadToCloud(file);
-      if (url) setForm((p) => ({ ...p, image: url }));
+      const { urls } = await uploadImagesToUrls([file], "hero");
+      if (urls[0]) setForm((p) => ({ ...p, image: urls[0] }));
       else throw new Error("No URL returned");
-    } catch {
-      setToast({ type: "error", message: "Image upload failed" });
+    } catch (err) {
+      setToast({ type: "error", message: err.response?.data?.message || "Image upload failed" });
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -563,7 +655,7 @@ export default function SiteContent() {
   const [activeTab, setActiveTab] = useState("stats");
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <h1 className="text-2xl font-bold font-heading text-text mb-6">Site Content</h1>
 
       {/* Tab bar */}
@@ -584,13 +676,14 @@ export default function SiteContent() {
 
       {/* Tab content */}
       <AnimatePresence mode="wait">
-        <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
+        <Motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
           {activeTab === "stats"    && <StatsTab />}
           {activeTab === "settings" && <SettingsTab />}
           {activeTab === "slides"   && <HeroSlidesTab />}
+          {activeTab === "heroes"   && <PageHeroesTab />}
           {activeTab === "team"     && <TeamTab />}
-        </motion.div>
+        </Motion.div>
       </AnimatePresence>
-    </motion.div>
+    </Motion.div>
   );
 }

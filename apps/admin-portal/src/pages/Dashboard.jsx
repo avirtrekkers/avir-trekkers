@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { getTrekStats, getEnrollmentStats, getAdminReviews, getCategories } from "../services/api";
-import { formatDate, formatPrice } from "../lib/utils";
 import { Mountain, Users, Star, FolderOpen, TrendingUp, AlertCircle, Activity, ArrowUpRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 const container = {
   hidden: { opacity: 0 },
@@ -134,7 +133,7 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <motion.div
+        <Motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           className="glass-card rounded-2xl p-8 text-center max-w-md"
@@ -148,13 +147,13 @@ export default function Dashboard() {
           >
             Retry
           </button>
-        </motion.div>
+        </Motion.div>
       </div>
     );
   }
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -162,23 +161,23 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <motion.h1
+          <Motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="text-3xl font-bold font-heading bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent"
           >
             Dashboard
-          </motion.h1>
-          <motion.p
+          </Motion.h1>
+          <Motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
             className="text-white/50 mt-1"
           >
             Welcome back! Here's your overview.
-          </motion.p>
+          </Motion.p>
         </div>
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
@@ -186,11 +185,11 @@ export default function Dashboard() {
         >
           <Activity className="w-4 h-4 text-green-400" />
           <span className="text-sm text-white/70">Live</span>
-        </motion.div>
+        </Motion.div>
       </div>
 
       {/* Stat Cards */}
-      <motion.div
+      <Motion.div
         variants={container}
         initial="hidden"
         animate="show"
@@ -198,10 +197,10 @@ export default function Dashboard() {
       >
         {loading
           ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-          : statCards.map((card, index) => {
+          : statCards.map((card) => {
               const Icon = card.icon;
               return (
-                <motion.div
+                <Motion.div
                   key={card.label}
                   variants={item}
                   whileHover={{ scale: 1.02, y: -4 }}
@@ -217,14 +216,14 @@ export default function Dashboard() {
                   <p className="text-3xl font-bold text-white">
                     <AnimatedNumber value={typeof card.value === 'number' ? card.value : parseInt(card.value) || card.value} />
                   </p>
-                </motion.div>
+                </Motion.div>
               );
             })}
-      </motion.div>
+      </Motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Enrollment Chart */}
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -259,10 +258,10 @@ export default function Dashboard() {
               <p>No enrollment data available yet</p>
             </div>
           )}
-        </motion.div>
+        </Motion.div>
 
         {/* Recent Enrollments */}
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -283,7 +282,7 @@ export default function Dashboard() {
           ) : recentEnrollments.length > 0 ? (
             <div className="space-y-2">
               {recentEnrollments.slice(0, 5).map((enrollment, idx) => (
-                <motion.div
+                <Motion.div
                   key={enrollment._id || idx}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -312,7 +311,7 @@ export default function Dashboard() {
                       {enrollment.paymentStatus || enrollment.status || "Pending"}
                     </span>
                   </div>
-                </motion.div>
+                </Motion.div>
               ))}
             </div>
           ) : (
@@ -320,8 +319,8 @@ export default function Dashboard() {
               <p>No recent enrollments</p>
             </div>
           )}
-        </motion.div>
+        </Motion.div>
       </div>
-    </motion.div>
+    </Motion.div>
   );
 }

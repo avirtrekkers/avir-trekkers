@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Trek = require("../Models/TrekModel");
 const Enrollment = require("../Models/EnrollmentModel");
+const { cleanupUrls } = require("../utils/mediaCleanup");
 
 /**
  * Normalize itinerary to new format: { day, dayTitle, activities: [{ time, title, description }] }.
@@ -338,6 +339,10 @@ const updateTrek = async (req, res) => {
             updateData.itinerary = sanitizeItineraryForSave(updateData.itinerary);
         }
 
+        const previous = Array.isArray(updateData.images)
+            ? await Trek.findById(id).select("images").lean()
+            : null;
+
         const trek = await Trek.findByIdAndUpdate(
             id,
             { ...updateData, updatedAt: new Date() },
@@ -349,6 +354,12 @@ const updateTrek = async (req, res) => {
                 success: false,
                 error: "Trek not found"
             });
+        }
+
+        // Clean up images dropped in this update
+        if (previous?.images?.length) {
+            const kept = new Set(updateData.images);
+            cleanupUrls(previous.images.filter((url) => !kept.has(url)));
         }
 
         res.status(200).json({
@@ -380,11 +391,13 @@ const deleteTrek = async (req, res) => {
         const trek = await Trek.findByIdAndDelete(id);
 
         if (!trek) {
-            return res.status(404).json({ 
-                success: false, 
-                error: "Trek not found" 
+            return res.status(404).json({
+                success: false,
+                error: "Trek not found"
             });
         }
+
+        cleanupUrls(trek.images);
 
         res.status(200).json({
             success: true,

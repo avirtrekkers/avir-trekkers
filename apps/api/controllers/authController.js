@@ -18,7 +18,7 @@ const registration = async (req, res) => {
         // Save the user to the database
         await newUser.save();
         // Remove password before sending response
-        const { password: pw, ...userWithoutPassword } = newUser._doc;
+        const { password: _pw, ...userWithoutPassword } = newUser._doc;
 
         res.status(201).json({
             message: "Registration successful",
@@ -50,7 +50,7 @@ const login = async (req, res) => {
             { expiresIn: "24h" }                     // token expiry
         );
         // 4. Remove password before sending response
-        const { password: pw, ...userWithoutPassword } = user._doc;
+        const { password: _pw, ...userWithoutPassword } = user._doc;
         // 5. Send response
         res.status(200).json({
             message: "Login successful",

@@ -20,7 +20,7 @@ async function seed() {
     admin = await RegistrationForm.create({
       fullName: "Avir Admin",
       role: "admin",
-      email: "contact@avirtrekkers.com",
+      email: "admin@avirtrekkers.com",
       password: await bcrypt.hash("Admin@123", 10),
     });
     console.log("Admin created:", admin._id);

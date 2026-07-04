@@ -2,7 +2,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { getFeaturedTreks, getPublicReviews, getSiteStats, getHeroSlides } from "../services/api";
 import { formatPrice, formatDate, truncate } from "../lib/utils";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion as Motion, AnimatePresence, useInView } from "framer-motion";
+import usePageMeta from "../lib/usePageMeta";
+import usePageHero from "../lib/usePageHero";
 import {
   MapPin, Calendar, Mountain, Users, Star, ArrowRight,
   Heart, Bike, GraduationCap, ChevronLeft, ChevronRight, ChevronDown,
@@ -76,6 +78,8 @@ function TrekCardSkeleton() {
 }
 
 export default function Home() {
+  const socialImpactBg = usePageHero("socialImpact", SOCIAL_IMPACT_BG);
+  usePageMeta(null, "Trek the Sahyadris and Himalayas with Avir Trekkers — guided treks, expeditions and social impact adventures across India.");
   const [treks, setTreks] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [heroSlides, setHeroSlides] = useState(FALLBACK_SLIDES);
@@ -144,34 +148,34 @@ export default function Home() {
       <section className="relative h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
         <div className="absolute inset-0">
           <AnimatePresence>
-            <motion.div
+            <Motion.div
               key={currentSlide}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 1.2 }}
               className="absolute inset-0"
             >
               <img src={slide.image} alt="" className="w-full h-full object-cover" />
-            </motion.div>
+            </Motion.div>
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/75" />
         </div>
 
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-white px-4 text-center pb-16">
           <AnimatePresence mode="wait">
-            <motion.div
+            <Motion.div
               key={currentSlide}
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="max-w-4xl mx-auto"
             >
-              <motion.div
+              <Motion.div
                 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.1 }}
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-sm font-medium mb-4"
               >
                 <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
                 Avir Trekkers · Maharashtra
-              </motion.div>
+              </Motion.div>
 
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold font-heading mb-4 leading-tight drop-shadow-lg">
                 {slide.headline}{" "}
@@ -185,18 +189,18 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                <Motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                   <Link to="/treks" className="inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary-light text-white px-8 py-3.5 rounded-xl font-semibold transition-colors text-lg shadow-xl shadow-secondary/30">
                     <MapPin className="h-5 w-5" /> Explore Treks
                   </Link>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                </Motion.div>
+                <Motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                   <Link to="/about" className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white px-8 py-3.5 rounded-xl font-semibold transition-colors border border-white/25 text-lg">
                     Our Story <ArrowRight className="h-5 w-5" />
                   </Link>
-                </motion.div>
+                </Motion.div>
               </div>
-            </motion.div>
+            </Motion.div>
           </AnimatePresence>
         </div>
 
@@ -204,10 +208,10 @@ export default function Home() {
           {String(currentSlide + 1).padStart(2, "0")} / {String(heroSlides.length).padStart(2, "0")}
         </div>
         <div className="absolute bottom-7 left-6 z-10">
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.8 }} className="flex flex-col items-center gap-1 text-white/50">
+          <Motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.8 }} className="flex flex-col items-center gap-1 text-white/50">
             <span className="text-xs tracking-widest uppercase">Scroll</span>
             <ChevronDown className="h-4 w-4" />
-          </motion.div>
+          </Motion.div>
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3">
@@ -234,12 +238,12 @@ export default function Home() {
           <div className="absolute -bottom-12 -right-12 w-80 h-80 bg-secondary/10 rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}
+          <Motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
             className="grid grid-cols-2 md:grid-cols-4"
           >
-            {STAT_ITEMS.map(({ icon: Icon, label, value, suffix }, idx) => (
-              <motion.div key={label}
+            {STAT_ITEMS.map((item, idx) => { const { icon: Icon, label, value, suffix } = item; return (
+              <Motion.div key={label}
                 variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55 } } }}
                 className={`flex flex-col items-center text-center py-6 px-4 group ${idx < STAT_ITEMS.length - 1 ? "border-r border-white/10" : ""}`}
               >
@@ -250,35 +254,35 @@ export default function Home() {
                   <AnimatedCounter target={value} suffix={suffix} />
                 </div>
                 <div className="text-white/60 text-sm font-medium mt-2 tracking-wide">{label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
+              </Motion.div>
+            ); })}
+          </Motion.div>
         </div>
       </section>
 
       {/* ── FEATURED TREKS ── */}
       <section className="py-20 px-4 bg-background">
         <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="text-center mb-12">
+          <Motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 bg-primary/8 text-primary text-sm font-semibold rounded-full mb-3">Upcoming Adventures</span>
             <h2 className="text-3xl md:text-4xl font-bold font-heading text-text mb-3">Featured Treks</h2>
             <p className="text-text-light max-w-xl mx-auto">Discover our most popular upcoming adventures — handpicked for all skill levels</p>
-          </motion.div>
+          </Motion.div>
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">{[1, 2, 3].map((i) => <TrekCardSkeleton key={i} />)}</div>
           ) : treks.length === 0 ? (
-            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center py-12">
+            <Motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center py-12">
               <Mountain className="h-16 w-16 text-primary/30 mx-auto mb-4" />
               <p className="text-text-light text-lg">No featured treks available right now. Check back soon!</p>
-            </motion.div>
+            </Motion.div>
           ) : (
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}
+            <Motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}
               variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
               className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
               {treks.slice(0, 6).map((trek, index) => (
-                <motion.div key={trek._id || index}
+                <Motion.div key={trek._id || index}
                   variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}
                   whileHover={{ y: -6 }}
                   className="rounded-2xl border border-border bg-surface overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
@@ -314,17 +318,17 @@ export default function Home() {
                       </Link>
                     </div>
                   </div>
-                </motion.div>
+                </Motion.div>
               ))}
-            </motion.div>
+            </Motion.div>
           )}
 
           {treks.length > 0 && (
-            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="text-center mt-12">
+            <Motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="text-center mt-12">
               <Link to="/treks" className="inline-flex items-center gap-2 border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-xl font-semibold transition-all group">
                 View All Treks <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-            </motion.div>
+            </Motion.div>
           )}
         </div>
       </section>
@@ -332,16 +336,16 @@ export default function Home() {
       {/* ── SOCIAL IMPACT ── */}
       <section className="relative py-24 px-4 overflow-hidden">
         <div className="absolute inset-0">
-          <img src={SOCIAL_IMPACT_BG} alt="" className="w-full h-full object-cover" />
+          <img src={socialImpactBg} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary-dark/95 via-primary/85 to-primary-dark/60" />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="text-white">
-              <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ type: "spring", bounce: 0.4, delay: 0.1 }}
+            <Motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="text-white">
+              <Motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ type: "spring", bounce: 0.4, delay: 0.1 }}
                 className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center mb-6">
                 <Heart className="h-7 w-7 text-secondary" />
-              </motion.div>
+              </Motion.div>
               <h2 className="text-3xl md:text-4xl font-bold font-heading mb-5">
                 Trekking with a <span className="text-amber-300">Social Heart</span>
               </h2>
@@ -351,14 +355,14 @@ export default function Home() {
               <p className="text-white/65 leading-relaxed mb-8">
                 Every trek you join contributes to these meaningful causes. When you trek with us, you are part of something bigger.
               </p>
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                 <Link to="/our-work" className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary-light text-white px-6 py-3.5 rounded-xl font-semibold transition-colors shadow-lg shadow-secondary/20">
                   <Heart className="h-5 w-5" /> See Our Work <ArrowRight className="h-5 w-5" />
                 </Link>
-              </motion.div>
-            </motion.div>
+              </Motion.div>
+            </Motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.2 }}
+            <Motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.2 }}
               className="grid grid-cols-2 gap-4">
               <div className="glass-hero rounded-2xl p-5 text-white">
                 <GraduationCap className="h-6 w-6 text-amber-300 mb-3" />
@@ -384,7 +388,7 @@ export default function Home() {
                 <div className="font-semibold text-sm mb-0.5">Lives Impacted</div>
                 <div className="text-white/60 text-xs">And counting</div>
               </div>
-            </motion.div>
+            </Motion.div>
           </div>
         </div>
       </section>
@@ -392,11 +396,11 @@ export default function Home() {
       {/* ── REVIEWS MARQUEE ── */}
       <section className="py-20 bg-background overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 mb-12">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="text-center">
+          <Motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="text-center">
             <span className="inline-block px-4 py-1.5 bg-accent/10 text-accent text-sm font-semibold rounded-full mb-3">Testimonials</span>
             <h2 className="text-3xl md:text-4xl font-bold font-heading text-text mb-3">What Trekkers Say</h2>
             <p className="text-text-light">Hear from our community of adventurers</p>
-          </motion.div>
+          </Motion.div>
         </div>
 
         {loading ? (
@@ -453,11 +457,11 @@ export default function Home() {
         )}
 
         {reviews.length > 0 && (
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="text-center mt-10 px-4">
+          <Motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="text-center mt-10 px-4">
             <Link to="/reviews" className="inline-flex items-center gap-2 text-primary hover:text-primary-light font-semibold transition-colors group">
               See All Reviews <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-          </motion.div>
+          </Motion.div>
         )}
       </section>
     </div>

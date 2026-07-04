@@ -11,11 +11,21 @@ const galleryRouter = require("./routes/galleryRoutes")
 const passwordResetRoutes = require("./routes/passwordResetRoutes")
 const siteRouter = require("./routes/siteRoutes")
 const contactRouter = require("./routes/contactRoutes")
+const mediaRouter = require("./routes/mediaRoutes")
 const cors = require("cors")
 const mongoSanitize = require("express-mongo-sanitize");
 const hpp = require("hpp");
 const requestLogger = require("./middleware/requestLogger");
 const errorHandler = require("./middleware/errorHandler");
+// Fail fast when required configuration is missing instead of falling back
+// to insecure defaults at request time.
+const REQUIRED_ENV = ["MONGODB_URL", "JWT_SECRET", "CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"];
+const missingEnv = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error(`Missing required environment variables: ${missingEnv.join(", ")}`);
+  process.exit(1);
+}
+
 const app = express();
 
 // Security middleware
@@ -93,6 +103,7 @@ app.use("/api/reviews", reviewRouter);
 app.use("/api/gallery", galleryRouter);
 app.use("/api/site", siteRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/media", mediaRouter);
 app.use("/api/auth", passwordResetRoutes);
 
 // Health check endpoint

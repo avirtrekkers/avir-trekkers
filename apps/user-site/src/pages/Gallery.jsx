@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { getSocialActivities, getGalleryTreks } from "../services/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Camera, Heart, X, ChevronLeft, ChevronRight, ZoomIn, Images } from "lucide-react";
+import usePageMeta from "../lib/usePageMeta";
+import usePageHero from "../lib/usePageHero";
 
 const TABS = [
   { key: "treks", label: "Trek Photos", icon: Camera },
@@ -54,6 +56,8 @@ function GalleryImage({ src, alt, className }) {
 }
 
 export default function Gallery() {
+  const heroBg = usePageHero("gallery", HERO_BG);
+  usePageMeta("Gallery", "Photos from our treks, expeditions and community activities.");
   const [activeTab, setActiveTab] = useState("treks");
   const [trekPhotos, setTrekPhotos] = useState([]);
   const [socialPhotos, setSocialPhotos] = useState([]);
@@ -154,11 +158,11 @@ export default function Gallery() {
       {/* ── HERO ── */}
       <section className="relative py-24 px-4 overflow-hidden">
         <div className="absolute inset-0">
-          <img src={HERO_BG} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          <img src={heroBg} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
           <div className="absolute inset-0 bg-gradient-to-b from-primary-dark/75 via-primary/65 to-primary-dark/80" />
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -173,17 +177,17 @@ export default function Gallery() {
             <p className="text-white/80 text-lg max-w-xl mx-auto">
               Moments captured from our treks and social activities across Maharashtra
             </p>
-          </motion.div>
+          </Motion.div>
 
           {/* Tab switcher inside hero */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex justify-center mt-8"
           >
             <div className="inline-flex bg-white/10 backdrop-blur-sm rounded-2xl p-1 border border-white/20">
-              {TABS.map(({ key, label, icon: Icon }) => (
+              {TABS.map((tab) => { const { key, label, icon: Icon } = tab; return (
                 <button
                   key={key}
                   onClick={() => setActiveTab(key)}
@@ -203,9 +207,9 @@ export default function Gallery() {
                     </span>
                   )}
                 </button>
-              ))}
+              ); })}
             </div>
-          </motion.div>
+          </Motion.div>
         </div>
       </section>
 
@@ -214,7 +218,7 @@ export default function Gallery() {
         {loading && <SkeletonGrid />}
 
         {!loading && currentPhotos.length === 0 && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-center py-20"
@@ -226,12 +230,12 @@ export default function Gallery() {
             <p className="text-text-light">
               Photos from our {activeTab === "treks" ? "treks" : "social activities"} will appear here soon.
             </p>
-          </motion.div>
+          </Motion.div>
         )}
 
         {!loading && visiblePhotos.length > 0 && (
           <>
-            <motion.div
+            <Motion.div
               key={activeTab}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -242,7 +246,7 @@ export default function Gallery() {
                 const large = index % 5 === 0;
 
                 return (
-                  <motion.button
+                  <Motion.button
                     key={index}
                     initial={{ opacity: 0, scale: 0.97 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -277,10 +281,10 @@ export default function Gallery() {
                         </p>
                       )}
                     </div>
-                  </motion.button>
+                  </Motion.button>
                 );
               })}
-            </motion.div>
+            </Motion.div>
 
             {currentPhotos.length > visibleCount && (
               <div className="flex justify-center mt-10">
@@ -306,7 +310,7 @@ export default function Gallery() {
       {/* ── LIGHTBOX ── */}
       <AnimatePresence>
         {lightbox !== null && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -341,7 +345,7 @@ export default function Gallery() {
               </>
             )}
 
-            <motion.div
+            <Motion.div
               key={lightbox}
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -361,8 +365,8 @@ export default function Gallery() {
                   {currentPhotos[lightbox].title}
                 </p>
               )}
-            </motion.div>
-          </motion.div>
+            </Motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { getCategories, createCategory, updateCategory, deleteCategory, toggleCategoryStatus } from "../services/api";
 import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, FolderOpen, Save, X, AlertCircle, Loader2 } from "lucide-react";
 import Pagination from "../components/common/Pagination";
@@ -121,7 +121,7 @@ export default function CategoryManagement() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold font-heading text-text">Category Management</h1>
         <button
@@ -288,6 +288,6 @@ export default function CategoryManagement() {
         pageSize={PAGE_SIZE}
         label="categories"
       />
-    </motion.div>
+    </Motion.div>
   );
 }

@@ -15,11 +15,11 @@
 #  SMTP_PASS             no-reply SMTP password
 #  CONTACT_SMTP_USER     contact@avirtrekkers.com
 #  CONTACT_SMTP_PASS     contact SMTP password
+#  CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET
 #
 #  ── Frontend build-time vars (baked into Docker images at build) ──────────
 #  VITE_WHATSAPP_NUMBER  WhatsApp number for user-site (e.g. 919766369007)
 #  VITE_WHATSAPP_MESSAGE Default WhatsApp pre-fill message for user-site
-#  VITE_CLOUD_API_BASE   Cloud upload API base URL for admin-portal
 #
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -130,8 +130,6 @@ jobs:
           push: true
           cache-from: type=gha,scope=staging-admin
           cache-to: type=gha,scope=staging-admin,mode=max
-          build-args: |
-            VITE_CLOUD_API_BASE=${{ secrets.VITE_CLOUD_API_BASE }}
           tags: |
             ${{ env.IMAGE_PREFIX }}/admin:staging
             ${{ env.IMAGE_PREFIX }}/admin:staging-${{ github.sha }}
@@ -164,6 +162,9 @@ jobs:
             SMTP_PASS=${{ secrets.SMTP_PASS }}
             CONTACT_SMTP_USER=${{ secrets.CONTACT_SMTP_USER }}
             CONTACT_SMTP_PASS=${{ secrets.CONTACT_SMTP_PASS }}
+            CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
             AVIR_ENV_EOF
             chmod 600 /opt/avir-staging/api.env
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   X,
   Loader2,
@@ -15,13 +15,10 @@ import {
   updateTrek,
   getTrekById,
   getCategories,
+  uploadImagesToUrls,
 } from "../../services/api";
 import TagInput from "./TagInput";
 import ItineraryBuilder from "./ItineraryBuilder";
-
-const CLOUD_API_BASE =
-  import.meta.env.VITE_CLOUD_API_BASE ||
-  "https://dev-api.technootales.in/v1/cloud";
 
 const trekSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -202,31 +199,23 @@ export default function TrekFormDrawer({ open, onClose, trekId, onSuccess }) {
       }
       setUploading(true);
       setUploadProgress(0);
-      const urls = [];
       try {
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
+        const list = Array.from(files);
+        for (const file of list) {
           if (!file.type.startsWith("image/"))
             throw new Error(`${file.name} is not an image`);
-          if (file.size > 10 * 1024 * 1024)
-            throw new Error(`${file.name} exceeds 10MB limit`);
-
-          const fd = new FormData();
-          fd.append("file", file);
-          const res = await fetch(`${CLOUD_API_BASE}/file`, {
-            method: "POST",
-            body: fd,
-          });
-          if (!res.ok) throw new Error(`Failed to upload ${file.name}`);
-          const result = await res.json();
-          if (result.file?._id) {
-            urls.push(`${CLOUD_API_BASE}/file/${result.file._id}`);
-          }
-          setUploadProgress(((i + 1) / files.length) * 100);
+          if (file.size > 5 * 1024 * 1024)
+            throw new Error(`${file.name} exceeds 5MB limit`);
         }
-        setImages((prev) => [...prev, ...urls]);
+        setUploadProgress(30);
+        const { urls, failed } = await uploadImagesToUrls(list, "treks");
+        setUploadProgress(100);
+        if (urls.length > 0) setImages((prev) => [...prev, ...urls]);
+        if (failed.length > 0) {
+          alert(`Some uploads failed: ${failed.map((f) => f.originalName).join(", ")}`);
+        }
       } catch (err) {
-        alert(`Upload failed: ${err.message}`);
+        alert(`Upload failed: ${err.response?.data?.message || err.message}`);
       } finally {
         setUploading(false);
         setUploadProgress(0);
@@ -278,7 +267,7 @@ export default function TrekFormDrawer({ open, onClose, trekId, onSuccess }) {
       {open && (
         <>
           {/* Backdrop */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -287,7 +276,7 @@ export default function TrekFormDrawer({ open, onClose, trekId, onSuccess }) {
           />
 
           {/* Drawer */}
-          <motion.div
+          <Motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -837,7 +826,7 @@ export default function TrekFormDrawer({ open, onClose, trekId, onSuccess }) {
                 </div>
               </form>
             )}
-          </motion.div>
+          </Motion.div>
         </>
       )}
     </AnimatePresence>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -23,10 +23,15 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  // Close the mobile menu when the route changes (state adjustment during render).
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setOpen(false);
+  }
 
   return (
-    <motion.nav
+    <Motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -39,7 +44,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5 font-heading group">
-            <motion.img
+            <Motion.img
               whileHover={{ rotate: [0, -5, 5, 0] }}
               transition={{ duration: 0.4 }}
               src="/logo.png"
@@ -64,7 +69,7 @@ export default function Navbar() {
               >
                 {link.name}
                 {pathname === link.path && (
-                  <motion.div
+                  <Motion.div
                     layoutId="navIndicator"
                     className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-gradient-to-r from-primary to-primary-light rounded-full"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -74,7 +79,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          <motion.a
+          <Motion.a
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || "919999999999"}?text=${encodeURIComponent(import.meta.env.VITE_WHATSAPP_MESSAGE || "Hi!")}`}
@@ -87,21 +92,21 @@ export default function Navbar() {
               <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.386 0-4.592-.832-6.32-2.222l-.44-.365-3.124 1.048 1.048-3.124-.365-.44A9.956 9.956 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z" />
             </svg>
             WhatsApp
-          </motion.a>
+          </Motion.a>
 
-          <motion.button
+          <Motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setOpen(!open)}
             className="md:hidden p-2 text-text-light hover:text-primary rounded-lg hover:bg-muted transition-colors"
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </motion.button>
+          </Motion.button>
         </div>
       </div>
 
       <AnimatePresence>
         {open && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -110,7 +115,7 @@ export default function Navbar() {
           >
             <div className="px-4 py-3 space-y-1">
               {navLinks.map((link, i) => (
-                <motion.div
+                <Motion.div
                   key={link.path}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -127,9 +132,9 @@ export default function Navbar() {
                   >
                     {link.name}
                   </Link>
-                </motion.div>
+                </Motion.div>
               ))}
-              <motion.div
+              <Motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -146,11 +151,11 @@ export default function Navbar() {
                   </svg>
                   Chat on WhatsApp
                 </a>
-              </motion.div>
+              </Motion.div>
             </div>
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </Motion.nav>
   );
 }

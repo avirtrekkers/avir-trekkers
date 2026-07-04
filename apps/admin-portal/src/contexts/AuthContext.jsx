@@ -1,20 +1,15 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import { adminLogin as loginAPI } from "../services/api";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
+  const [user, setUser] = useState(() => {
     const token = sessionStorage.getItem("adminToken");
     const userData = sessionStorage.getItem("adminUser");
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
-    setLoading(false);
-  }, []);
+    return token && userData ? JSON.parse(userData) : null;
+  });
+  const loading = false;
 
   const login = async (email, password) => {
     const { data } = await loginAPI({ email, password });
@@ -37,4 +32,5 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is intentionally co-located with its provider; splitting files would churn all importers
 export const useAuth = () => useContext(AuthContext);

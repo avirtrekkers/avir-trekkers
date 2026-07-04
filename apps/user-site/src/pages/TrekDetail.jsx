@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import DOMPurify from "dompurify";
 import { getTrekById } from "../services/api";
+import usePageMeta from "../lib/usePageMeta";
 import { formatPrice, formatDate } from "../lib/utils";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import {
   MapPin,
   Calendar,
@@ -30,6 +32,11 @@ export default function TrekDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  usePageMeta(
+    trek?.title || "Trek Details",
+    trek?.shortDescription || trek?.description?.replace(/<[^>]*>/g, "").slice(0, 155)
+  );
 
   async function fetchTrek() {
     setLoading(true);
@@ -143,7 +150,7 @@ export default function TrekDetail() {
 
       {/* Cover Image */}
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="rounded-2xl overflow-hidden h-72 md:h-96 relative"
@@ -180,7 +187,7 @@ export default function TrekDetail() {
               )}
             </div>
           </div>
-        </motion.div>
+        </Motion.div>
 
         {/* Image Thumbnails */}
         {images.length > 1 && (
@@ -257,7 +264,7 @@ export default function TrekDetail() {
                 trek.description.includes("<") ? (
                   <div
                     className="prose prose-sm max-w-none text-text-light leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: trek.description }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(trek.description) }}
                   />
                 ) : (
                   <p className="text-text-light leading-relaxed whitespace-pre-line">
@@ -279,7 +286,7 @@ export default function TrekDetail() {
                 </h2>
                 <div className="space-y-4">
                   {itinerary.map((item, index) => (
-                    <motion.div
+                    <Motion.div
                       key={index}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
@@ -311,7 +318,7 @@ export default function TrekDetail() {
                           {item.details && typeof item.details === 'string' && <p>{item.details}</p>}
                         </div>
                       </div>
-                    </motion.div>
+                    </Motion.div>
                   ))}
                 </div>
               </div>

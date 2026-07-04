@@ -10,7 +10,7 @@ const {
     sendCancellationConfirmation,
 } = require("../utils/emailService");
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET;
 const VERIFICATION_TOKEN_EXPIRY = "15m";
 
 function generateOtp() {
@@ -261,8 +261,8 @@ const enrollInTrek = async (req, res) => {
 // GET: Get user's enrollments
 const getUserEnrollments = async (req, res) => {
     try {
-        const userId = req.user.userId;
         const { status, page = 1, limit = 10 } = req.query;
+        const userId = req.user.userId;
 
         const filter = { user: userId };
         if (status) filter.enrollmentStatus = status;
@@ -382,7 +382,6 @@ const updateEnrollment = async (req, res) => {
 const cancelEnrollment = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user.userId;
 
         const enrollment = await Enrollment.findById(id);
 

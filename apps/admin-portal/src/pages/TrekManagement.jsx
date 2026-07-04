@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { getAllTreks, deleteTrek, toggleTrekStatus } from "../services/api";
 import { formatPrice, formatDate } from "../lib/utils";
 import {
@@ -37,14 +37,14 @@ function DeleteConfirmModal({ trek, onConfirm, onCancel, loading }) {
     <AnimatePresence>
       {trek && (
         <>
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onCancel}
             className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
           />
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -93,7 +93,7 @@ function DeleteConfirmModal({ trek, onConfirm, onCancel, loading }) {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </Motion.div>
         </>
       )}
     </AnimatePresence>
@@ -199,7 +199,7 @@ export default function TrekManagement() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold font-heading text-text">Trek Management</h1>
         <button
@@ -351,7 +351,7 @@ export default function TrekManagement() {
       {/* Delete error toast */}
       <AnimatePresence>
         {deleteError && !deleteTarget && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -362,7 +362,7 @@ export default function TrekManagement() {
             <button onClick={() => setDeleteError(null)} className="ml-2 hover:text-white transition-colors">
               <X className="w-4 h-4" />
             </button>
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
 
@@ -389,6 +389,6 @@ export default function TrekManagement() {
         trekId={viewTrekId}
         onEdit={openEdit}
       />
-    </motion.div>
+    </Motion.div>
   );
 }

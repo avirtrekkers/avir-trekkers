@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { useParams, Link } from "react-router-dom";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { getTrekById, createEnrollment } from "../services/api";
+import usePageMeta from "../lib/usePageMeta";
 import {
   User, Phone, Mail, MapPin, Calendar, IndianRupee, Plus, Trash2,
   ChevronDown, ChevronUp, Loader2, CheckCircle2, AlertCircle,
@@ -75,7 +76,7 @@ function ParticipantCard({ index, data, onChange, onRemove, pickupPoints, canRem
       {/* body */}
       <AnimatePresence initial={false}>
         {expanded && (
-          <motion.div
+          <Motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -205,7 +206,7 @@ function ParticipantCard({ index, data, onChange, onRemove, pickupPoints, canRem
                 </div>
               </div>
             </div>
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>
@@ -214,8 +215,8 @@ function ParticipantCard({ index, data, onChange, onRemove, pickupPoints, canRem
 
 /* ─── Main Page ─── */
 export default function Booking() {
+  usePageMeta("Book Your Trek", "Reserve your spot on an upcoming trek with Avir Trekkers.");
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [trek,         setTrek]         = useState(null);
   const [trekLoading,  setTrekLoading]  = useState(true);
@@ -311,7 +312,7 @@ export default function Booking() {
   if (success) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-lg w-full bg-white rounded-3xl shadow-lg border border-slate-100 p-10 text-center"
@@ -338,7 +339,7 @@ export default function Booking() {
               Go Home
             </Link>
           </div>
-        </motion.div>
+        </Motion.div>
       </div>
     );
   }
@@ -376,11 +377,11 @@ export default function Booking() {
               {/* error banner */}
               <AnimatePresence>
                 {error && (
-                  <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  <Motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                     className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     {error}
-                  </motion.div>
+                  </Motion.div>
                 )}
               </AnimatePresence>
 
@@ -534,7 +535,7 @@ export default function Booking() {
             {/* Submit (desktop) */}
             <button
               type="button"
-              onClick={(e) => {
+              onClick={() => {
                 document.querySelector("form")?.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
               }}
               disabled={submitting}

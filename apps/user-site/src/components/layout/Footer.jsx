@@ -73,13 +73,13 @@ export default function Footer() {
                 { icon: Camera, href: "https://instagram.com/avirtrekkers", label: "Instagram" },
                 { icon: Globe, href: "https://facebook.com/avirtrekkers", label: "Facebook" },
                 { icon: Video, href: "https://youtube.com/@avirtrekkers", label: "YouTube" },
-              ].map(({ icon: Icon, href, label }) => (
+              ].map((item) => { const { icon: Icon, href, label } = item; return (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                   className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center hover:bg-primary/20 hover:text-primary-light hover:scale-110 transition-all duration-200"
                   aria-label={label}>
                   <Icon className="h-5 w-5" />
                 </a>
-              ))}
+              ); })}
             </div>
             <p className="text-white/25 text-xs mt-5">Founded 2024</p>
           </div>

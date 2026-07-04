@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { getSiteSettings, submitContactForm } from "../services/api";
+import usePageMeta from "../lib/usePageMeta";
+import usePageHero from "../lib/usePageHero";
 import {
   Send,
   Phone,
@@ -33,6 +35,8 @@ const inputClass =
   "w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-text placeholder:text-text-light focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary focus:bg-white transition-colors text-sm";
 
 export default function Contact() {
+  const heroBg = usePageHero("contact", HERO_BG);
+  usePageMeta("Contact Us", "Get in touch with Avir Trekkers for bookings, custom treks and queries.");
   const [siteSettings, setSiteSettings] = useState(FALLBACK_SETTINGS);
 
   useEffect(() => {
@@ -92,7 +96,7 @@ export default function Contact() {
       <section className="relative py-24 px-4 overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={HERO_BG}
+            src={heroBg}
             alt=""
             className="w-full h-full object-cover"
             loading="lazy"
@@ -101,7 +105,7 @@ export default function Contact() {
           <div className="absolute inset-0 bg-gradient-to-b from-primary-dark/80 via-primary/70 to-primary-dark/85" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto text-center text-white">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -117,7 +121,7 @@ export default function Contact() {
               Have questions about a trek? Want to partner with us? Reach out and
               we'll get back to you within a few hours.
             </p>
-          </motion.div>
+          </Motion.div>
         </div>
       </section>
 
@@ -126,7 +130,7 @@ export default function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* Contact Form */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-7 md:p-9"
@@ -241,13 +245,13 @@ export default function Contact() {
                 {submitting ? "Sending..." : "Send Message"}
               </button>
             </form>
-          </motion.div>
+          </Motion.div>
 
           {/* Sidebar */}
           <div className="flex flex-col gap-5">
 
             {/* Contact info */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -257,7 +261,8 @@ export default function Contact() {
                 Reach Us Directly
               </h3>
               <div className="flex flex-col gap-4">
-                {CONTACT_ITEMS.map(({ icon: Icon, label, value, href, bg, color, external }) => {
+                {CONTACT_ITEMS.map((item) => {
+                  const { icon: Icon, label, value, href, bg, color, external } = item;
                   const inner = (
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center flex-shrink-0`}>
@@ -284,10 +289,10 @@ export default function Contact() {
                   );
                 })}
               </div>
-            </motion.div>
+            </Motion.div>
 
             {/* Social links */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -297,7 +302,7 @@ export default function Contact() {
                 Follow Us
               </h3>
               <div className="flex gap-3">
-                {SOCIAL_LINKS.map(({ icon: Icon, label, url }) => (
+                {SOCIAL_LINKS.map((item) => { const { icon: Icon, label, url } = item; return (
                   <a
                     key={label}
                     href={url}
@@ -308,12 +313,12 @@ export default function Contact() {
                   >
                     <Icon className="h-5 w-5" />
                   </a>
-                ))}
+                ); })}
               </div>
-            </motion.div>
+            </Motion.div>
 
             {/* WhatsApp CTA */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -340,7 +345,7 @@ export default function Contact() {
                 <MessageCircle className="h-4 w-4" />
                 Chat on WhatsApp
               </a>
-            </motion.div>
+            </Motion.div>
           </div>
         </div>
       </div>

@@ -110,9 +110,6 @@ function wrap(content) {
 </html>`;
 }
 
-function btn(text, href) {
-    return `<a href="${href}" style="display:inline-block;background:#e07020;color:#ffffff;font-size:14px;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;margin-top:20px;">${text}</a>`;
-}
 
 function trekCard(trek) {
     const fmt = (d) => d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";

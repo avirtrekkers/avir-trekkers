@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
 const Trek = require("../Models/TrekModel");
 const SocialActivity = require("../Models/SocialActivityModel");
 const GalleryTrek = require("../Models/GalleryTrekModel");
+const { cleanupUrls } = require("../utils/mediaCleanup");
 
 // GET: Get all treks with images for gallery (including past/completed treks)
 const getTrekGallery = async (req, res) => {
@@ -179,6 +179,7 @@ const removeTrekImage = async (req, res) => {
         trek.updatedAt = new Date();
 
         await trek.save();
+        cleanupUrls(decodedImageUrl);
 
         res.status(200).json({
             success: true,
@@ -349,6 +350,7 @@ const removeSocialActivityImage = async (req, res) => {
         activity.images = activity.images.filter(img => img.url !== decodedImageUrl);
         activity.updatedAt = new Date();
         await activity.save();
+        cleanupUrls(decodedImageUrl);
 
         res.status(200).json({
             success: true,
@@ -378,6 +380,7 @@ const deleteSocialActivity = async (req, res) => {
         }
 
         await SocialActivity.findByIdAndDelete(id);
+        cleanupUrls(activity.images);
 
         res.status(200).json({
             success: true,
@@ -692,6 +695,7 @@ const removeGalleryTrekImage = async (req, res) => {
 
         galleryTrek.updatedAt = new Date();
         await galleryTrek.save();
+        cleanupUrls(decodedImageUrl);
 
         res.status(200).json({
             success: true,
@@ -719,6 +723,7 @@ const deleteGalleryTrek = async (req, res) => {
                 error: "Gallery trek not found"
             });
         }
+        cleanupUrls(galleryTrek.images);
 
         res.status(200).json({
             success: true,

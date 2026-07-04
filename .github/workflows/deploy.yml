@@ -11,6 +11,7 @@
 #  PROD_JWT_SECRET       JWT secret for production API
 #  SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASS
 #  CONTACT_SMTP_USER / CONTACT_SMTP_PASS
+#  CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET
 #
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -97,8 +98,6 @@ jobs:
           push: true
           cache-from: type=gha,scope=prod-admin
           cache-to: type=gha,scope=prod-admin,mode=max
-          build-args: |
-            VITE_CLOUD_API_BASE=${{ secrets.VITE_CLOUD_API_BASE }}
           tags: |
             ${{ env.IMAGE_PREFIX }}/admin:latest
             ${{ env.IMAGE_PREFIX }}/admin:${{ github.sha }}
@@ -146,6 +145,9 @@ jobs:
             SMTP_PASS=${{ secrets.SMTP_PASS }}
             CONTACT_SMTP_USER=${{ secrets.CONTACT_SMTP_USER }}
             CONTACT_SMTP_PASS=${{ secrets.CONTACT_SMTP_PASS }}
+            CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
             AVIR_ENV_EOF
             chmod 600 /opt/avir-trekkers/api.env
 

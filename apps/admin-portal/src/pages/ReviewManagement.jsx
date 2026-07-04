@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { getAdminReviews, updateReviewStatus, deleteReview } from "../services/api";
 import { formatDate } from "../lib/utils";
 import { Star, Check, Trash2, AlertCircle, Loader2, MessageSquare } from "lucide-react";
@@ -115,7 +115,7 @@ export default function ReviewManagement() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+    <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <h1 className="text-2xl font-bold font-heading text-text mb-6">Review Management</h1>
 
       {/* Tabs */}
@@ -216,6 +216,6 @@ export default function ReviewManagement() {
         pageSize={PAGE_SIZE}
         label="reviews"
       />
-    </motion.div>
+    </Motion.div>
   );
 }

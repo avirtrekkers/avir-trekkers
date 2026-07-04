@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { getPublicTreks, getCategories } from "../services/api";
 import { formatPrice, formatDate } from "../lib/utils";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
+import usePageMeta from "../lib/usePageMeta";
+import usePageHero from "../lib/usePageHero";
 import {
   Search,
   MapPin,
@@ -74,6 +76,8 @@ function SlotsBar({ current, max }) {
 }
 
 export default function Treks() {
+  const heroBg = usePageHero("treks", HERO_BG);
+  usePageMeta("Trek Expeditions", "Browse upcoming treks and expeditions — filter by difficulty, category and season.");
   const [treks, setTreks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -157,11 +161,11 @@ export default function Treks() {
       {/* ── HERO ── */}
       <section className="relative py-24 px-4 overflow-hidden">
         <div className="absolute inset-0">
-          <img src={HERO_BG} alt="" className="w-full h-full object-cover" />
+          <img src={heroBg} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-primary-dark/80 via-primary/70 to-primary-dark/80" />
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -176,7 +180,7 @@ export default function Treks() {
             <p className="text-white/80 text-lg max-w-2xl mx-auto">
               Find your next adventure across Maharashtra's stunning forts, hills, and nature trails
             </p>
-          </motion.div>
+          </Motion.div>
         </div>
       </section>
 
@@ -255,7 +259,7 @@ export default function Treks() {
           {/* Active filter chips */}
           <AnimatePresence>
             {activeFilters.length > 0 && (
-              <motion.div
+              <Motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
@@ -279,7 +283,7 @@ export default function Treks() {
                 >
                   Clear all
                 </button>
-              </motion.div>
+              </Motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -289,7 +293,7 @@ export default function Treks() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Results header */}
         {!loading && !error && treks.length > 0 && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex items-center justify-between mb-6"
@@ -298,7 +302,7 @@ export default function Treks() {
               Showing <span className="font-semibold text-text">{treks.length}</span> trek{treks.length !== 1 ? "s" : ""}
               {activeFilters.length > 0 && " matching your filters"}
             </p>
-          </motion.div>
+          </Motion.div>
         )}
 
         {/* Error */}
@@ -324,7 +328,7 @@ export default function Treks() {
 
         {/* Empty */}
         {!loading && !error && treks.length === 0 && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-center py-20"
@@ -343,7 +347,7 @@ export default function Treks() {
                 Clear all filters
               </button>
             )}
-          </motion.div>
+          </Motion.div>
         )}
 
         {/* Trek Grid */}
@@ -367,7 +371,7 @@ function TrekCard({ trek, index }) {
   const isFull = spotsLeft <= 0;
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.4 }}
@@ -469,6 +473,6 @@ function TrekCard({ trek, index }) {
           </Link>
         </div>
       </div>
-    </motion.div>
+    </Motion.div>
   );
 }
