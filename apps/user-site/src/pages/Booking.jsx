@@ -3,11 +3,16 @@ import { useParams, Link } from "react-router-dom";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import { getTrekById, createEnrollment } from "../services/api";
 import usePageMeta from "../lib/usePageMeta";
+import { WhatsappIcon } from "../components/BrandIcons";
 import {
   User, Phone, Mail, MapPin, Calendar, IndianRupee, Plus, Trash2,
   ChevronDown, ChevronUp, Loader2, CheckCircle2, AlertCircle,
   Users, Heart, Utensils, Droplets, ArrowLeft, Clock,
 } from "lucide-react";
+
+// Trek WhatsApp community — set VITE_WHATSAPP_GROUP_LINK to enable the
+// "Join Group" prompt on the enrollment success screen.
+const WHATSAPP_GROUP_LINK = import.meta.env.VITE_WHATSAPP_GROUP_LINK || "";
 
 /* ─── constants ─── */
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
@@ -22,6 +27,10 @@ const BLANK_PARTICIPANT = {
 };
 
 /* ─── helpers ─── */
+// Keep only digits, capped at 10 (Indian mobile numbers)
+const onlyDigits = (v) => (v || "").replace(/\D/g, "").slice(0, 10);
+const phoneInputProps = { type: "tel", inputMode: "numeric", maxLength: 10, pattern: "[0-9]{10}", title: "Enter a 10-digit mobile number", placeholder: "98765 43210" };
+
 const inputCls  = "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-text text-sm placeholder:text-text-light focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-colors";
 const labelCls  = "block text-xs font-semibold text-text-light uppercase tracking-wide mb-1";
 const selectCls = `${inputCls} cursor-pointer`;
@@ -130,7 +139,7 @@ function ParticipantCard({ index, data, onChange, onRemove, pickupPoints, canRem
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className={labelCls}>Mobile *</label>
-                    <input required type="tel" value={data.mobile} onChange={e => set("mobile", e.target.value)} placeholder="+91 98765 43210" className={inputCls} />
+                    <input required {...phoneInputProps} value={data.mobile} onChange={e => set("mobile", onlyDigits(e.target.value))} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>Email</label>
@@ -197,7 +206,7 @@ function ParticipantCard({ index, data, onChange, onRemove, pickupPoints, canRem
                   </div>
                   <div>
                     <label className={labelCls}>Mobile *</label>
-                    <input required type="tel" value={data.emerContactNumber} onChange={e => set("emerContactNumber", e.target.value)} placeholder="+91 98765 43210" className={inputCls} />
+                    <input required {...phoneInputProps} value={data.emerContactNumber} onChange={e => set("emerContactNumber", onlyDigits(e.target.value))} className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}>Relation *</label>
@@ -331,6 +340,27 @@ export default function Booking() {
               <p className="font-mono font-bold text-text text-sm">{success.bookingId}</p>
             </div>
           )}
+
+          {WHATSAPP_GROUP_LINK && (
+            <div className="bg-green-50 border border-green-200 rounded-2xl px-5 py-5 mb-7 text-left">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                  <WhatsappIcon className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-heading font-bold text-text text-sm mb-1">Join the trek WhatsApp group</p>
+                  <p className="text-text-light text-xs mb-3 leading-relaxed">
+                    Get trek updates, packing lists and coordination details. All enrolled trekkers should join.
+                  </p>
+                  <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+                    <WhatsappIcon className="w-4 h-4" /> Join Group
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/treks" className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-semibold text-sm transition-colors">
               Explore More Treks
@@ -372,7 +402,7 @@ export default function Booking() {
               <p className="text-text-light text-sm">{trek.title}</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form id="enrollment-form" onSubmit={handleSubmit} className="space-y-6">
 
               {/* error banner */}
               <AnimatePresence>
@@ -409,9 +439,9 @@ export default function Booking() {
                   </div>
                   <div>
                     <label className={labelCls}>Mobile *</label>
-                    <input required type="tel" value={primary.mobile}
-                      onChange={e => setPrimary(p => ({ ...p, mobile: e.target.value }))}
-                      placeholder="+91 98765 43210" className={inputCls} />
+                    <input required {...phoneInputProps} value={primary.mobile}
+                      onChange={e => setPrimary(p => ({ ...p, mobile: onlyDigits(e.target.value) }))}
+                      className={inputCls} />
                   </div>
                 </div>
               </div>
@@ -532,12 +562,10 @@ export default function Booking() {
               </p>
             </div>
 
-            {/* Submit (desktop) */}
+            {/* Submit (desktop) — type=submit + form attr so native validation runs */}
             <button
-              type="button"
-              onClick={() => {
-                document.querySelector("form")?.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
-              }}
+              type="submit"
+              form="enrollment-form"
               disabled={submitting}
               className="hidden lg:flex w-full items-center justify-center gap-2 bg-secondary hover:bg-secondary-light disabled:opacity-50 text-white py-3.5 rounded-2xl font-bold transition-colors shadow-sm"
             >

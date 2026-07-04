@@ -197,10 +197,14 @@ export default function Contact() {
                   </label>
                   <input
                     type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    pattern="[0-9]{10}"
+                    title="Enter a 10-digit mobile number"
                     value={form.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
+                    onChange={(e) => handleChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
                     className={inputClass}
-                    placeholder="+91 98765 43210"
+                    placeholder="98765 43210"
                   />
                 </div>
                 <div>

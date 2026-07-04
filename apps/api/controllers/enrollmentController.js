@@ -254,7 +254,30 @@ const enrollInTrek = async (req, res) => {
         });
     } catch (error) {
         console.error("Error enrolling in trek:", error);
-        res.status(500).json({ success: false, error: "Failed to enroll in trek" });
+
+        // Surface field-level validation errors so the user knows what to fix
+        if (error.name === "ValidationError") {
+            const FIELD_LABELS = {
+                fullName: "Full name", age: "Age", gender: "Gender", bloodGroup: "Blood group",
+                address: "Address", mobile: "Mobile number", email: "Email", pickupPoint: "Pickup point",
+                foodPreference: "Food preference", medicalCondition: "Medical condition",
+                emergencyName: "Emergency contact name", emerContactNumber: "Emergency contact number",
+                emergencyRelation: "Emergency contact relation",
+            };
+            const fields = [...new Set(
+                Object.values(error.errors).map((e) => {
+                    const key = e.path.split(".").pop();
+                    return FIELD_LABELS[key] || key;
+                })
+            )];
+            return res.status(400).json({
+                success: false,
+                error: `Please check these fields: ${fields.join(", ")}`,
+                fields,
+            });
+        }
+
+        res.status(500).json({ success: false, error: "Failed to enroll in trek. Please try again." });
     }
 };
 

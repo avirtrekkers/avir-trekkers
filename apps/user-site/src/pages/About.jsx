@@ -279,11 +279,16 @@ export default function About() {
           </div>
 
           <div className="flex-1 flex flex-col px-8 lg:px-10 py-8 relative overflow-hidden">
-            <div className="mb-5 flex items-center gap-2">
+            {/* Decorative watermark — sits behind the content cards */}
+            <span aria-hidden="true"
+              className="absolute -bottom-3 right-4 text-7xl lg:text-8xl font-black text-slate-900/[0.04] select-none pointer-events-none uppercase z-0 leading-none">
+              {slide.label}
+            </span>
+            <div className="relative z-10 mb-5 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{slide.label}</span>
             </div>
-            <div className="flex-1 flex flex-col justify-center">
+            <div className="relative z-10 flex-1 flex flex-col justify-center">
               <AnimatePresence mode="wait">
                 <Motion.div key={slide.id + "-v"} variants={vars} initial="enter" animate="center" exit="exit"
                   className="w-full max-w-2xl mx-auto">
@@ -291,9 +296,6 @@ export default function About() {
                 </Motion.div>
               </AnimatePresence>
             </div>
-            <span aria-hidden="true" className="absolute bottom-4 right-6 text-6xl font-black text-slate-200 select-none pointer-events-none uppercase">
-              {slide.label}
-            </span>
           </div>
         </div>
       </div>

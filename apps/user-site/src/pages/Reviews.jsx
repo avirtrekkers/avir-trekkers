@@ -82,6 +82,7 @@ export default function Reviews() {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    location: "",
     rating: 0,
     reviewText: "",
     trekId: "",
@@ -128,18 +129,25 @@ export default function Reviews() {
       setSubmitError("Please select a rating.");
       return;
     }
+    if (!form.trekId) {
+      setSubmitError("Please select which trek you're reviewing.");
+      return;
+    }
     setSubmitting(true);
     setSubmitError("");
     try {
+      const selectedTrek = treks.find((t) => t._id === form.trekId);
       await submitReview({
-        name: form.name,
-        email: form.email,
+        customerName: form.name,
+        customerEmail: form.email,
+        customerLocation: form.location,
         rating: form.rating,
         reviewText: form.reviewText,
-        trekId: form.trekId || undefined,
+        trekId: form.trekId,
+        trekName: selectedTrek?.title || selectedTrek?.name || "",
       });
       setSubmitSuccess(true);
-      setForm({ name: "", email: "", rating: 0, reviewText: "", trekId: "" });
+      setForm({ name: "", email: "", location: "", rating: 0, reviewText: "", trekId: "" });
       setTimeout(() => {
         setShowForm(false);
         setSubmitSuccess(false);
@@ -292,6 +300,21 @@ export default function Reviews() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-text mb-1">
+                      Your Location *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={form.location}
+                      onChange={(e) =>
+                        handleFormChange("location", e.target.value)
+                      }
+                      className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                      placeholder="e.g. Pune, Maharashtra"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-text mb-1">
                       Rating *
                     </label>
                     <ClickableStars
@@ -299,27 +322,31 @@ export default function Reviews() {
                       onChange={(r) => handleFormChange("rating", r)}
                     />
                   </div>
-                  {treks.length > 0 && (
-                    <div>
-                      <label className="block text-sm font-semibold text-text mb-1">
-                        Trek (optional)
-                      </label>
-                      <select
-                        value={form.trekId}
-                        onChange={(e) =>
-                          handleFormChange("trekId", e.target.value)
-                        }
-                        className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      >
-                        <option value="">Select a trek</option>
-                        {treks.map((trek) => (
-                          <option key={trek._id} value={trek._id}>
-                            {trek.title || trek.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-sm font-semibold text-text mb-1">
+                      Which Trek? *
+                    </label>
+                    <select
+                      required
+                      value={form.trekId}
+                      onChange={(e) =>
+                        handleFormChange("trekId", e.target.value)
+                      }
+                      className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                    >
+                      <option value="">Select a trek</option>
+                      {treks.map((trek) => (
+                        <option key={trek._id} value={trek._id}>
+                          {trek.title || trek.name}
+                        </option>
+                      ))}
+                    </select>
+                    {treks.length === 0 && (
+                      <p className="text-xs text-text-light mt-1">
+                        Loading treks…
+                      </p>
+                    )}
+                  </div>
                   <div>
                     <label className="block text-sm font-semibold text-text mb-1">
                       Your Review *
